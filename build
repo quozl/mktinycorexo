@@ -3,7 +3,7 @@
 OLPC_OS_BUILD=build-10.2_xo1.5-108
 OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
 
-# fetch upstream sources
+# fetch upstream components
 
 mkdir -p cache
 rsync --archive --checksum rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/tinycore.gz cache/
@@ -14,6 +14,11 @@ rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot
 mkdir -p cache/lib/modules
 rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
 
+mkdir -p cache/lib/firmware
+rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/sd8686* cache/lib/firmware/
+
+# http://distro.ibiblio.org/pub/linux/distributions/tinycorelinux/2.x/tcz/wireless_tools.tcz
+
 # repack tinycore.gz with our modules
 
 mkdir -p cache/tinycore.tree
@@ -21,6 +26,7 @@ zcat cache/tinycore.gz | \
 (cd cache/tinycore.tree && cpio --extract --make-directories)
 rm -rf cache/tinycore.tree/lib/modules/2.6.29.1-tinycore
 cp -pr cache/lib/modules/${OLPC_OS_KERNEL} cache/tinycore.tree/lib/modules/
+cp -pr cache/lib/firmware cache/tinycore.tree/lib/
 (cd cache/tinycore.tree && (find | cpio -o -H newc | gzip -2 > ../tinycore.new.gz) )
 rm -rf cache/tinycore.tree
 
