@@ -1,0 +1,55 @@
+#!/bin/sh
+
+OLPC_OS_BUILD=build-10.2_xo1.5-108
+OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
+
+# fetch upstream sources
+
+mkdir -p cache
+rsync --archive --checksum rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/tinycore.gz cache/
+
+mkdir -p cache/boot
+rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
+
+mkdir -p cache/lib/modules
+rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
+
+# repack tinycore.gz with our modules
+
+mkdir -p cache/tinycore.tree
+zcat cache/tinycore.gz | \
+(cd cache/tinycore.tree && cpio --extract --make-directories)
+rm -rf cache/tinycore.tree/lib/modules/2.6.29.1-tinycore
+cp -pr cache/lib/modules/${OLPC_OS_KERNEL} cache/tinycore.tree/lib/modules/
+(cd cache/tinycore.tree && (find | cpio -o -H newc | gzip -2 > ../tinycore.new.gz) )
+rm -rf cache/tinycore.tree
+
+# build the output tree
+
+rm -rf output
+mkdir -p output
+mkdir -p output/boot
+
+cp cache/tinycore.new.gz output/boot/tinycore.gz
+cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
+
+cat << EOF > output/boot/olpc.fth
+\ olpc.fth
+
+\ clear serial port colour selection
+1b emit .( [m )
+
+setup-smbios
+unfreeze
+dcon-unfreeze
+visible
+
+\ announce self
+.( -- OpenFirmware Tiny Core Linux boot script, quozl@laptop.org, 2010-01-18 -- ) cr cr
+
+" video=viafb:viafb_mode=1200x900,viafb_bpp=24,viafb_active_dev=LCD,viafb_lcd_panel_id=23 no_console_suspend reboot=acpi selinux=0 console=ttyS0,115200 console=tty0 fbcon=font:SUN12x22 text" to boot-file
+" u:\boot\vmlinuz" to boot-device
+" u:\boot\tinycore.gz" to ramdisk
+
+boot
+EOF
