@@ -17,9 +17,6 @@ rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/
 mkdir -p cache/lib/firmware
 rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/sd8686* cache/lib/firmware/
 
-mkdir -p cache/tce
-rsync --archive --checksum rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/tcz/wireless_tools.tcz cache/tce/
-
 # repack tinycore.gz with our modules
 
 mkdir -p cache/tinycore.tree
@@ -39,7 +36,6 @@ mkdir -p output/boot
 
 cp cache/tinycore.new.gz output/boot/tinycore.gz
 cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
-cp -pr cache/tce output/
 
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
@@ -62,6 +58,9 @@ visible
 boot
 EOF
 
+# take a copy of iwconfig and required library
+cp /sbin/iwconfig /lib/libiw.so.29 output/
+
 # copy to media
-rsync --archive output/boot output/tce /media/e718d57d-7eaa-4fad-afb6-ce8241fd477e/
+rsync --archive output/boot /media/e718d57d-7eaa-4fad-afb6-ce8241fd477e/
 umount /media/e718d57d-7eaa-4fad-afb6-ce8241fd477e/
