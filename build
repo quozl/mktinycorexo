@@ -1,35 +1,66 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
 OLPC_OS_BUILD=build-10.2_xo1.5-108
 OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
+DEVICE=/dev/disk/by-id/usb-DSE_Micro_Drive_0000000000002F-0:0-part1
 
-# fetch upstream components
+CACHE=yes
+while [ ! -z "${1}" ]; do
+    case "${1}" in
+	--no-cache)
+	    shift
+	    CACHE=no
+	    ;;
+	--help)
+	    shift
+	    echo "--no-cache"
+	    exit 0
+	    ;;
+	*)
+	    DEVICE=${1}
+	    shift
+	    if [ ! -e ${DEVICE} ]; then
+		echo "build: no such device ${DEVICE}"
+		exit 1
+	    fi
+    esac
+
+done
 
 mkdir -p cache
-rsync --archive --checksum rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/tinycore.gz cache/
-
 mkdir -p cache/boot
-rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
-
 mkdir -p cache/lib/modules
-rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
-
 mkdir -p cache/lib/firmware
-rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/sd8686* cache/lib/firmware/
 
-# repack tinycore.gz with our modules
+if [ $CACHE = no -o ! -e cache/tinycore.gz ]; then
+    rsync --archive --checksum rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/tinycore.gz cache/
+fi
 
-mkdir -p cache/tinycore.tree
+if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
+    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
+fi
+
+if [ $CACHE = no -o ! -e cache/lib/modules/${OLPC_OS_KERNEL} ]; then
+    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
+fi
+
+if [ $CACHE = no -o ! -e cache/lib/firmware/sd8686.bin ]; then
+    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/sd8686* cache/lib/firmware/
+fi
+
+echo "build: repack tree"
+TREE=/tmp/tinycore.tree.$$
+mkdir -p ${TREE}
 zcat cache/tinycore.gz | \
-(cd cache/tinycore.tree && cpio --extract --make-directories)
-rm -rf cache/tinycore.tree/lib/modules/2.6.29.1-tinycore
-cp -pr cache/lib/modules/${OLPC_OS_KERNEL} cache/tinycore.tree/lib/modules/
-cp -pr cache/lib/firmware cache/tinycore.tree/lib/
-(cd cache/tinycore.tree && (find | cpio -o -H newc | gzip -2 > ../tinycore.new.gz) )
-rm -rf cache/tinycore.tree
+(cd ${TREE} && cpio --extract --make-directories --quiet)
+rm -rf ${TREE}/lib/modules/2.6.29.1-tinycore
+cp -pr cache/lib/modules/${OLPC_OS_KERNEL} ${TREE}/lib/modules/
+cp -pr cache/lib/firmware ${TREE}/lib/
+(cd ${TREE} && (find | cpio -o -H newc --quiet | gzip -2 > ../tinycore.new.gz) )
+rm -rf ${TREE}
 
-# build the output tree
-
+echo "build: create output"
 rm -rf output
 mkdir -p output
 mkdir -p output/boot
@@ -40,27 +71,33 @@ cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
 
-\ clear serial port colour selection
-1b emit .( [m )
-
 setup-smbios
 unfreeze
 dcon-unfreeze
 visible
 
 \ announce self
-.( -- OpenFirmware Tiny Core Linux boot script, quozl@laptop.org, 2010-01-18 -- ) cr cr
+.( -- OpenFirmware Tiny Core Linux boot script, quozl@laptop.org, 2010-01-25 -- ) cr cr
 
-" video=viafb:viafb_mode=1200x900,viafb_bpp=24,viafb_active_dev=LCD,viafb_lcd_panel_id=23 no_console_suspend reboot=acpi selinux=0 console=ttyS0,115200 console=tty0 fbcon=font:SUN12x22 text" to boot-file
+" fbcon=font:SUN12x22 superuser quiet time opt=/dev/sda1" to boot-file
 " u:\boot\vmlinuz" to boot-device
 " u:\boot\tinycore.gz" to ramdisk
 
 boot
 EOF
 
-# take a copy of iwconfig and required library
-cp /sbin/iwconfig /lib/libiw.so.29 output/
+# setup wireless
+mkdir output/opt
+cat <<EOF > output/opt/bootlocal.sh
+#!/bin/sh
+LD_LIBRARY_PATH=/lib:/opt iwconfig eth0 essid quozl.linux.org.au
+EOF
+chmod +x output/opt/bootlocal.sh
+cp /sbin/iwconfig /lib/libiw.so.29 output/opt/
 
 # copy to media
-rsync --archive output/boot /media/e718d57d-7eaa-4fad-afb6-ce8241fd477e/
-umount /media/e718d57d-7eaa-4fad-afb6-ce8241fd477e/
+echo "build: copy to media"
+mke2fs -q ${DEVICE}
+mount ${DEVICE} /mnt
+rsync --archive output/boot output/opt /mnt/
+umount /mnt/
