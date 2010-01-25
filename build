@@ -1,20 +1,102 @@
 #!/bin/bash
+#
+# Tiny Core Linux 2.8 target system builder for OLPC XO-1.5
+# Copyright (C) 2010  James Cameron (quozl@laptop.org)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
 set -e
 
-OLPC_OS_BUILD=build-10.2_xo1.5-108
-OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
+# local defaults
+
+# the block device to create the partition on
 DEVICE=/dev/disk/by-id/usb-DSE_Micro_Drive_0000000000002F-0:0-part1
 
+# the wireless network identity
+# requires REMOVABLE=no
+ESSID=quozl.linux.org.au
+
+# additional kernel options
+CMDLINE="fbcon=font:SUN12x22 superuser quiet"
+
+# option defaults
+
+# configure the system to be removable after boot, yes, no
+REMOVABLE=no
+
+# use a local cache of upstream files on your build system
 CACHE=yes
+
+# upstream versions
+
+# the build from which to obtain matching kernel, modules and firmware
+OLPC_OS_BUILD=build-10.2_xo1.5-108
+
+# the kernel version string in that build
+OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
+
+# version of this script
+VERSION=2010-01-25
+
+function license {
+    cat <<EOF
+Tiny Core Linux target system builder for OLPC XO-1.5, ${VERSION}
+Copyright (C) 2010  James Cameron (quozl@laptop.org)
+
+This program comes with ABSOLUTELY NO WARRANTY; for details see source.
+This is free software, and you are welcome to redistribute it under
+certain conditions; see source for details.
+
+EOF
+}
+
+function usage {
+    cat <<EOF
+build [options] [device]
+
+device         block device to create boot partition on
+
+--removable    configure the target system to support removable boot media
+--no-cache     ignores the local cache previously built
+--version
+--license
+--help
+EOF
+}
+
+# process options and arguments
 while [ ! -z "${1}" ]; do
     case "${1}" in
 	--no-cache)
 	    shift
 	    CACHE=no
 	    ;;
-	--help)
+	--removable)
 	    shift
-	    echo "--no-cache"
+	    REMOVABLE=yes
+	    ;;
+	--help)
+	    usage
+	    exit 0
+	    ;;
+	--license)
+	    license
+	    exit 0
+	    ;;
+	--version)
+	    echo ${VERSION}
 	    exit 0
 	    ;;
 	*)
@@ -28,6 +110,9 @@ while [ ! -z "${1}" ]; do
 
 done
 
+license
+
+# build the cache
 mkdir -p cache
 mkdir -p cache/boot
 mkdir -p cache/lib/modules
@@ -57,6 +142,10 @@ zcat cache/tinycore.gz | \
 rm -rf ${TREE}/lib/modules/2.6.29.1-tinycore
 cp -pr cache/lib/modules/${OLPC_OS_KERNEL} ${TREE}/lib/modules/
 cp -pr cache/lib/firmware ${TREE}/lib/
+cat <<EOF >> ${TREE}/etc/motd
+${VERSION} quozl@laptop.org
+
+EOF
 (cd ${TREE} && (find | cpio -o -H newc --quiet | gzip -2 > ../tinycore.new.gz) )
 rm -rf ${TREE}
 
@@ -68,32 +157,33 @@ mkdir -p output/boot
 cp cache/tinycore.new.gz output/boot/tinycore.gz
 cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
 
+# FIXME: we should implement the wireless access within the tree, no
+# need to bind it to requiring non-removable /opt mode.
+
+mkdir output/opt
+if [ $REMOVABLE = no ]; then
+    CMDLINE="${CMDLINE} opt=/dev/sda1"
+    cat <<EOF > output/opt/bootlocal.sh
+#!/bin/sh
+LD_LIBRARY_PATH=/lib:/opt /opt/iwconfig eth0 essid ${ESSID}
+EOF
+    chmod +x output/opt/bootlocal.sh
+    cp /sbin/iwconfig /lib/libiw.so.29 output/opt/
+fi
+
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
-
 setup-smbios
 unfreeze
 dcon-unfreeze
 visible
-
-\ announce self
-.( -- OpenFirmware Tiny Core Linux boot script, quozl@laptop.org, 2010-01-25 -- ) cr cr
-
+.( -- Tiny Core Linux boot script for OpenFirmware    ) cr
+.(    by quozl@laptop.org, ${VERSION}              -- ) cr cr
 " fbcon=font:SUN12x22 superuser quiet time opt=/dev/sda1" to boot-file
 " u:\boot\vmlinuz" to boot-device
 " u:\boot\tinycore.gz" to ramdisk
-
 boot
 EOF
-
-# setup wireless
-mkdir output/opt
-cat <<EOF > output/opt/bootlocal.sh
-#!/bin/sh
-LD_LIBRARY_PATH=/lib:/opt iwconfig eth0 essid quozl.linux.org.au
-EOF
-chmod +x output/opt/bootlocal.sh
-cp /sbin/iwconfig /lib/libiw.so.29 output/opt/
 
 # copy to media
 echo "build: copy to media"
