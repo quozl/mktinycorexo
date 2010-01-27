@@ -21,34 +21,51 @@ set -e
 
 # local defaults
 
+
 # the block device to create the partition on
+# (ignored if it does not exist)
 DEVICE=/dev/disk/by-id/usb-DSE_Micro_Drive_0000000000002F-0:0-part1
 
-# the wireless network identity
-# requires REMOVABLE=no
+# your wireless network
 ESSID=quozl.linux.org.au
 
-# additional kernel options
-CMDLINE="fbcon=font:SUN12x22 superuser quiet"
 
 # option defaults
 
-# configure the system to be removable after boot, yes, no
-REMOVABLE=no
-
 # use a local cache of upstream files on your build system
+# (--no-cache turns this off and verifies cache against upstream)
 CACHE=yes
+
+# additional kernel options
+# see http://wiki.tinycorelinux.com/tiki-index.php?page=Boot+Options
+# fbcon=font:SUN12x22, the same console font as the OLPC builds
+# superuser, boots to a root shell
+# quiet, reduces verbosity during boot
+CMDLINE="fbcon=font:SUN12x22 superuser quiet"
+
 
 # upstream versions
 
 # the build from which to obtain matching kernel, modules and firmware
+# (corresponds to an rsync module name on rsync://updates.laptop.org/)
 OLPC_OS_BUILD=build-10.2_xo1.5-108
 
 # the kernel version string in that build
+# see uname --release
 OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
 
+
 # version of this script
-VERSION=2010-01-25
+VERSION=2010-01-27
+
+# where to unpack the tinycore initrd tree
+# (is not kept)
+TREE=/tmp/tinycore.tree.$$
+
+# where to create the new tinycore initrd
+# (is not kept)
+INITRD=/tmp/tinycore.gz.$$
+
 
 function license {
     cat <<EOF
@@ -66,13 +83,17 @@ function usage {
     cat <<EOF
 build [options] [device]
 
-device         block device to create boot partition on
+device         optional block device to create boot partition on.
+               (otherwise you must copy output/boot to a device yourself)
 
---removable    configure the target system to support removable boot media
---no-cache     ignores the local cache previously built
---version
---license
---help
+--no-cache     ignores the local cache previously built.
+               (verifies cache against upstream)
+
+--version      displays script version.
+
+--license      displays license.
+
+--help         displays this what you are looking at, mate.
 EOF
 }
 
@@ -82,10 +103,6 @@ while [ ! -z "${1}" ]; do
 	--no-cache)
 	    shift
 	    CACHE=no
-	    ;;
-	--removable)
-	    shift
-	    REMOVABLE=yes
 	    ;;
 	--help)
 	    usage
@@ -118,58 +135,112 @@ mkdir -p cache/boot
 mkdir -p cache/lib/modules
 mkdir -p cache/lib/firmware
 
+if [ $CACHE = no ]; then
+    echo "fetch"
+fi
+
 if [ $CACHE = no -o ! -e cache/tinycore.gz ]; then
-    rsync --archive --checksum rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/tinycore.gz cache/
+    rsync --archive --checksum --quiet rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/tinycore.gz cache/
 fi
 
 if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
+    if [ -e /boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
+	cp --archive /boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
+    fi
+
     rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
 fi
 
 if [ $CACHE = no -o ! -e cache/lib/modules/${OLPC_OS_KERNEL} ]; then
+    if [ -e /lib/modules/${OLPC_OS_KERNEL} ]; then
+	cp --archive /lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
+    fi
+
     rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
 fi
 
 if [ $CACHE = no -o ! -e cache/lib/firmware/sd8686.bin ]; then
+    if [ -e /lib/firmware/sd8686.bin ]; then
+	cp --archive /lib/firmware/sd8686* cache/lib/firmware/
+    fi
+
     rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/sd8686* cache/lib/firmware/
 fi
 
-echo "build: repack tree"
-TREE=/tmp/tinycore.tree.$$
+function encapsulate {
+    # ignore if the binary is not specified
+    if [ -z "${1}" ]; then return; fi
+
+    bin=${1}
+    BIN=$(basename ${bin})
+
+    # ignore if the binary is already present
+    if [ -x bin/${BIN} -o -x sbin/${BIN} ]; then return; fi
+
+    # make a wrapper
+    cat > bin/${BIN} <<EOF
+#!/bin/sh
+LD_LIBRARY_PATH=/lib:/foreign /foreign/${BIN} \$*
+EOF
+    chmod +x bin/${BIN}
+
+    # copy the binary and required libraries
+    mkdir -p foreign
+    cp -p ${bin} foreign/
+
+    for lib in `ldd ${bin}|egrep -v "linux-gate|ld-linux"|awk '{print $3}'`; do
+	LIB=$(basename ${lib})
+	if [ -x foreign/${LIB} ]; then continue; fi
+	if [ ! -x lib/${LIB} -a ! -x usr/lib/${LIB} ]; then
+	    cp -p ${lib} foreign/
+	fi
+    done
+}
+
+# unpack
+echo "unpack"
 mkdir -p ${TREE}
 zcat cache/tinycore.gz | \
-(cd ${TREE} && cpio --extract --make-directories --quiet)
-rm -rf ${TREE}/lib/modules/2.6.29.1-tinycore
-cp -pr cache/lib/modules/${OLPC_OS_KERNEL} ${TREE}/lib/modules/
-cp -pr cache/lib/firmware ${TREE}/lib/
+    (cd ${TREE} && cpio --extract --make-directories --quiet)
+
+# modify version
+echo "modify - version"
 cat <<EOF >> ${TREE}/etc/motd
 ${VERSION} quozl@laptop.org
 
 EOF
-(cd ${TREE} && (find | cpio -o -H newc --quiet | gzip -2 > ../tinycore.new.gz) )
+
+# modify kernel
+echo "modify - kernel"
+rm -rf ${TREE}/lib/modules/2.6.29.1-tinycore
+cp -pr cache/lib/modules/${OLPC_OS_KERNEL} ${TREE}/lib/modules/
+cp -pr cache/lib/firmware ${TREE}/lib/
+
+# supply missing utilities from this system
+echo "modify - utilities"
+(cd ${TREE} && encapsulate `which parted`)
+(cd ${TREE} && encapsulate `which iwconfig`)
+(cd ${TREE} && encapsulate `which iwlist`)
+
+# associate with wireless on boot
+if [ ! -z "${ESSID}" ]; then
+    echo "modify - wireless"
+    echo iwconfig eth0 essid ${ESSID} >> ${TREE}/opt/bootlocal.sh
+fi
+
+# pack
+echo "pack"
+(cd ${TREE} && (find | cpio -o -H newc --quiet | gzip -2 > ${INITRD}) )
 rm -rf ${TREE}
 
-echo "build: create output"
+# make the output filesystem tree
+echo "structure"
 rm -rf output
 mkdir -p output
 mkdir -p output/boot
 
-cp cache/tinycore.new.gz output/boot/tinycore.gz
+cp ${INITRD} output/boot/tinycore.gz
 cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
-
-# FIXME: we should implement the wireless access within the tree, no
-# need to bind it to requiring non-removable /opt mode.
-
-mkdir output/opt
-if [ $REMOVABLE = no ]; then
-    CMDLINE="${CMDLINE} opt=/dev/sda1"
-    cat <<EOF > output/opt/bootlocal.sh
-#!/bin/sh
-LD_LIBRARY_PATH=/lib:/opt /opt/iwconfig eth0 essid ${ESSID}
-EOF
-    chmod +x output/opt/bootlocal.sh
-    cp /sbin/iwconfig /lib/libiw.so.29 output/opt/
-fi
 
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
@@ -179,15 +250,20 @@ dcon-unfreeze
 visible
 .( -- Tiny Core Linux boot script for OpenFirmware    ) cr
 .(    by quozl@laptop.org, ${VERSION}              -- ) cr cr
-" fbcon=font:SUN12x22 superuser quiet time opt=/dev/sda1" to boot-file
+" ${CMDLINE}" to boot-file
 " u:\boot\vmlinuz" to boot-device
 " u:\boot\tinycore.gz" to ramdisk
 boot
 EOF
 
 # copy to media
-echo "build: copy to media"
-mke2fs -q ${DEVICE}
-mount ${DEVICE} /mnt
-rsync --archive output/boot output/opt /mnt/
-umount /mnt/
+if [ -w ${DEVICE} ]; then
+    echo "copy"
+    mke2fs -q ${DEVICE}
+    mount ${DEVICE} /mnt
+    rsync --archive output/boot /mnt/
+    umount /mnt/
+fi
+
+# cleanup
+rm -f ${INITRD}
