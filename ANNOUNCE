@@ -28,7 +28,7 @@ Instructions:
 
 a.  unpack the tar file,
 
-b.  place the boot directory on FAT or ext2 formatted USB stick or SD
+b.  place the boot directory on an ext2 formatted USB stick or SD
 card,
 
 c.  boot from the media.
