@@ -1,10 +1,12 @@
+How to create a Tiny Core Linux bootable USB stick from upstream
+distribution components.
+
 1.  select a USB stick that has nothing on it that is wanted,
 
 2.  select a system for building with; best fit is an XO-1.5 running
 os108, or later, or some other Linux system, (the script obtains the
 os108 kernel from the internet if it is not available on your system),
-
-2.  plug it in to an 
+then plug the USB stick into it,
 
 3.  identify the USB stick from /proc/partitions, usually /dev/sda,
 

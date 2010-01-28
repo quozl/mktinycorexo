@@ -4,6 +4,7 @@ OLPC build 802 and os108.
 I've found this useful for testing and diagnosis without touching the
 internal NAND or SD storage.
 
+
 Features:
 
 - based on Tiny Core Linux 2.8 microcore variant, configured for a
@@ -14,12 +15,14 @@ Features:
 - includes the wireless firmware shipped with OLPC builds, and binary
   redistribution of wireless tools from the same builds,
 
+
 Downloads:
 
 http://dev.laptop.org/~quozl/tinycore/
 
 389e8bdad0fe8de9d22cf4a12d666dda  microcore-2.8-xo-1-2010-01-28.tar (6.2Mb)
 5aaa0ad6a4b6a4d28e6db372ca439fd5  microcore-2.8-xo-1.5-2010-01-28.tar (7.4Mb)
+
 
 Instructions:
 
@@ -30,10 +33,14 @@ card,
 
 c.  boot from the media.
 
+
 References:
 
 1.  Tiny Core Linux
 http://www.tinycorelinux.com/
 
-2.  mktinycore script git repository
-http://dev.laptop.org/~quozl/mktinycore.git/.git
+2.  mktinycorexo script
+http://dev.laptop.org/~quozl/mktinycorexo/
+
+3.  mktinycorexo script git repository
+git clone http://dev.laptop.org/~quozl/mktinycorexo/.git
