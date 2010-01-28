@@ -27,7 +27,7 @@ set -e
 DEVICE=/dev/disk/by-id/usb-DSE_Micro_Drive_0000000000002F-0:0-part1
 
 # your wireless network
-ESSID=quozl.linux.org.au
+ESSID=
 
 
 # option defaults
@@ -54,9 +54,11 @@ OLPC_OS_BUILD=build-10.2_xo1.5-108
 # see uname --release
 OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
 
+# the wireless firmware blob
+WIRELESS_FIRMWARE=sd8686*
 
 # version of this script
-VERSION=2010-01-27
+VERSION=2010-01-28
 
 # where to unpack the tinycore initrd tree
 # (is not kept)
@@ -89,6 +91,8 @@ device         optional block device to create boot partition on.
 --no-cache     ignores the local cache previously built.
                (verifies cache against upstream)
 
+--essid id     associate to a wireless network during boot.
+
 --version      displays script version.
 
 --license      displays license.
@@ -100,6 +104,17 @@ EOF
 # process options and arguments
 while [ ! -z "${1}" ]; do
     case "${1}" in
+	--xo-1)
+	    shift
+	    OLPC_OS_BUILD=build-802
+	    OLPC_OS_KERNEL=2.6.25-20090223.1.olpc.69098d87d56945c
+	    WIRELESS_FIRMWARE=usb8388.bin
+	    ;;
+	--essid)
+	    shift
+	    ESSID=${1}
+	    shift
+	    ;;
 	--no-cache)
 	    shift
 	    CACHE=no
@@ -145,6 +160,7 @@ fi
 
 if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
     if [ -e /boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
+	echo "using kernel from this system"
 	cp --archive /boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
     fi
 
@@ -153,24 +169,23 @@ fi
 
 if [ $CACHE = no -o ! -e cache/lib/modules/${OLPC_OS_KERNEL} ]; then
     if [ -e /lib/modules/${OLPC_OS_KERNEL} ]; then
+	echo "using modules from this system"
 	cp --archive /lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
     fi
 
     rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
 fi
 
-if [ $CACHE = no -o ! -e cache/lib/firmware/sd8686.bin ]; then
-    if [ -e /lib/firmware/sd8686.bin ]; then
-	cp --archive /lib/firmware/sd8686* cache/lib/firmware/
+if [ $CACHE = no -o ! -e cache/lib/firmware/${WIRELESS_FIRMWARE} ]; then
+    if [ -e /lib/firmware/${WIRELESS_FIRMWARE} ]; then
+	echo "using wireless firmware from this system"
+	cp --archive /lib/firmware/${WIRELESS_FIRMWARE/.bin/*} cache/lib/firmware/
     fi
 
-    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/sd8686* cache/lib/firmware/
+    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/${WIRELESS_FIRMWARE/.bin/*} cache/lib/firmware/
 fi
 
 function encapsulate {
-    # ignore if the binary is not specified
-    if [ -z "${1}" ]; then return; fi
-
     bin=${1}
     BIN=$(basename ${bin})
 
@@ -218,14 +233,17 @@ cp -pr cache/lib/firmware ${TREE}/lib/
 
 # supply missing utilities from this system
 echo "modify - utilities"
-(cd ${TREE} && encapsulate `which parted`)
-(cd ${TREE} && encapsulate `which iwconfig`)
-(cd ${TREE} && encapsulate `which iwlist`)
+for sbin in parted iwconfig iwlist iwpriv; do
+    if [ -x /sbin/${sbin} ]; then
+        (cd ${TREE} && encapsulate /sbin/${sbin})
+    fi
+done
 
 # associate with wireless on boot
 if [ ! -z "${ESSID}" ]; then
     echo "modify - wireless"
     echo iwconfig eth0 essid ${ESSID} >> ${TREE}/opt/bootlocal.sh
+    # FIXME: on XO-1 delay until eth0 present
 fi
 
 # pack
@@ -256,6 +274,9 @@ visible
 boot
 EOF
 
+# cleanup
+rm -f ${INITRD}
+
 # copy to media
 if [ -w ${DEVICE} ]; then
     echo "copy"
@@ -264,6 +285,3 @@ if [ -w ${DEVICE} ]; then
     rsync --archive output/boot /mnt/
     umount /mnt/
 fi
-
-# cleanup
-rm -f ${INITRD}
