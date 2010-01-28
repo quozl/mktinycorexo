@@ -1,68 +1,21 @@
-1.  obtain Tiny Core Linux 2.7,
+1.  select a USB stick that has nothing on it that is wanted,
 
-# wget http://distro.ibiblio.org/pub/linux/distributions/tinycorelinux/2.x/release/tinycore_2.7.iso
+2.  select a system for building with; best fit is an XO-1.5 running
+os108, or later, or some other Linux system, (the script obtains the
+os108 kernel from the internet if it is not available on your system),
 
-# wget --continue --timestamping http://distro.ibiblio.org/pub/linux/distributions/tinycorelinux/2.x/release/tinycore_2.7.iso
-# rsync --archive --checksum rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/tinycore_2.7.iso ./
+2.  plug it in to an 
 
-2.  obtain the tinycore.gz file from the ISO-9660 image,
+3.  identify the USB stick from /proc/partitions, usually /dev/sda,
 
-# md5sum tinycore_2.7.iso
-2c34a1d51ac4906cd78660770fbd8c10  tinycore_2.7.iso
-# mount -o loop tinycore_2.7.iso /mnt
-# cp /mnt/boot/tinycore.gz .
-# umount /mnt
+4.  ensure you have an internet connection,
 
-or
+5.  as root run the script:
 
-2.  obtain the tinycore.gz file from the Tiny Core Linux distribution files:
+    mktinycorexo /dev/sdZ
 
-# wget http://distro.ibiblio.org/pub/linux/distributions/tinycorelinux/2.x/release/distribution_files/tinycore.gz
-# md5sum tinycore.gz
-d84edf04b5baf490c35e31e159337227  tinycore.gz
+... where /dev/sdZ is the answer you obtained from step 3 above,
 
-3.  create a filesystem on the USB stick, mount it, and make a boot
-directory,
+6.  wait for completion,
 
-# DEVICE=/dev/sdz1
-# mke2fs ${DEVICE}
-# mount ${DEVICE} /mnt
-# mkdir /mnt/boot
-
-4.  place the tinycore.gz file on the USB stick,
-
-# cp tinycore.gz /mnt/boot/
-
-5.  place the kernel image from the current stable build of OLPC
-XO-1.5 on the USB stick, (e.g. by grabbing it from the internal SD
-card),
-
-# rsync rsync://updates.laptop.org/build-10.2_xo1.5-108/root/boot/vmlinuz-2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a ./vmlinuz
-# cp vmlinuz /mnt/boot/
-
-6.  create an OpenFirmware boot script,
-
-# cat << EOF > /mnt/boot/olpc.fth
-\ olpc.fth
-
-\ clear serial port colour selection
-1b emit .( [m )
-
-\ announce self
-.( -- OpenFirmware Tiny Core Linux boot script, quozl@laptop.org, 2010-01-18 -- ) cr cr
-
-" video=viafb:viafb_mode=1200x900,viafb_bpp=24,viafb_active_dev=LCD,viafb_lcd_panel_id=23 no_console_suspend reboot=acpi selinux=0 console=ttyS0,115200 console=tty0 fbcon=font:SUN12x22 text" to boot-file
-" u:\boot\vmlinuz" to boot-device
-" u:\boot\tinycore.gz" to ramdisk
-
-setup-smbios
-unfreeze
-dcon-unfreeze
-visible
-boot
-EOF
-
-7.  umount the filesystem and boot from it
-
-# umount /mnt
-
+7.  boot from the USB stick.
