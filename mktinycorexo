@@ -55,18 +55,21 @@ OLPC_OS_BUILD=build-10.2_xo1.5-108
 OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
 
 # the wireless firmware blob
-WIRELESS_FIRMWARE=sd8686*
+OLPC_FW_WIRELESS=sd8686.bin
+
+# the tinycore variant; tinycore or microcore
+VARIANT=microcore
 
 # version of this script
 VERSION=2010-01-28
 
 # where to unpack the tinycore initrd tree
 # (is not kept)
-TREE=/tmp/tinycore.tree.$$
+TREE=/tmp/${VARIANT}.tree.$$
 
 # where to create the new tinycore initrd
 # (is not kept)
-INITRD=/tmp/tinycore.gz.$$
+INITRD=/tmp/${VARIANT}.gz.$$
 
 
 function license {
@@ -108,7 +111,7 @@ while [ ! -z "${1}" ]; do
 	    shift
 	    OLPC_OS_BUILD=build-802
 	    OLPC_OS_KERNEL=2.6.25-20090223.1.olpc.69098d87d56945c
-	    WIRELESS_FIRMWARE=usb8388.bin
+	    OLPC_FW_WIRELESS=usb8388.bin
 	    ;;
 	--essid)
 	    shift
@@ -154,8 +157,8 @@ if [ $CACHE = no ]; then
     echo "fetch"
 fi
 
-if [ $CACHE = no -o ! -e cache/tinycore.gz ]; then
-    rsync --archive --checksum --quiet rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/tinycore.gz cache/
+if [ $CACHE = no -o ! -e cache/${VARIANT}.gz ]; then
+    rsync --archive --checksum --quiet rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/${VARIANT}.gz cache/
 fi
 
 if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
@@ -176,13 +179,13 @@ if [ $CACHE = no -o ! -e cache/lib/modules/${OLPC_OS_KERNEL} ]; then
     rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
 fi
 
-if [ $CACHE = no -o ! -e cache/lib/firmware/${WIRELESS_FIRMWARE} ]; then
-    if [ -e /lib/firmware/${WIRELESS_FIRMWARE} ]; then
+if [ $CACHE = no -o ! -e cache/lib/firmware/${OLPC_FW_WIRELESS} ]; then
+    if [ -e /lib/firmware/${OLPC_FW_WIRELESS} ]; then
 	echo "using wireless firmware from this system"
-	cp --archive /lib/firmware/${WIRELESS_FIRMWARE/.bin/*} cache/lib/firmware/
+	cp --archive /lib/firmware/${OLPC_FW_WIRELESS/.bin/*} cache/lib/firmware/
     fi
 
-    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/${WIRELESS_FIRMWARE/.bin/*} cache/lib/firmware/
+    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/${OLPC_FW_WIRELESS/.bin/*} cache/lib/firmware/
 fi
 
 function encapsulate {
@@ -215,7 +218,7 @@ EOF
 # unpack
 echo "unpack"
 mkdir -p ${TREE}
-zcat cache/tinycore.gz | \
+zcat cache/${VARIANT}.gz | \
     (cd ${TREE} && cpio --extract --make-directories --quiet)
 
 # modify version
@@ -257,7 +260,7 @@ rm -rf output
 mkdir -p output
 mkdir -p output/boot
 
-cp ${INITRD} output/boot/tinycore.gz
+cp ${INITRD} output/boot/${VARIANT}.gz
 cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
 
 cat << EOF > output/boot/olpc.fth
@@ -270,7 +273,7 @@ visible
 .(    by quozl@laptop.org, ${VERSION}              -- ) cr cr
 " ${CMDLINE}" to boot-file
 " u:\boot\vmlinuz" to boot-device
-" u:\boot\tinycore.gz" to ramdisk
+" u:\boot\\${VARIANT}.gz" to ramdisk
 boot
 EOF
 
