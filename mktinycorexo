@@ -109,8 +109,8 @@ while [ ! -z "${1}" ]; do
     case "${1}" in
 	--xo-1)
 	    shift
-	    OLPC_OS_BUILD=build-802
-	    OLPC_OS_KERNEL=2.6.25-20090223.1.olpc.69098d87d56945c
+	    OLPC_OS_BUILD=build-10.1.2_xo1-303
+	    OLPC_OS_KERNEL=2.6.31_xo1-20100728.1841.1.olpc.a0a0edb7d8cbadb
 	    OLPC_FW_WIRELESS=usb8388.bin
 	    ;;
 	--essid)

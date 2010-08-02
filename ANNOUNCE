@@ -1,5 +1,5 @@
 Announcing a build of Tiny Core Linux for XO-1 and XO-1.5 based on
-OLPC build 802 and os108.
+OLPC development build os303 (leading up to release 10.1.2).
 
 I've found this useful for testing and diagnosis without touching the
 internal NAND or SD storage.
@@ -7,7 +7,7 @@ internal NAND or SD storage.
 
 Features:
 
-- based on Tiny Core Linux 2.8 microcore variant, configured for a
+- based on Tiny Core Linux 3.0 microcore variant, configured for a
   single root shell in text mode,
 
 - uses the OLPC kernel, for hardware support,
@@ -20,8 +20,8 @@ Downloads:
 
 http://dev.laptop.org/~quozl/tinycore/
 
-389e8bdad0fe8de9d22cf4a12d666dda  microcore-2.8-xo-1-2010-01-28.tar (6.2Mb)
-5aaa0ad6a4b6a4d28e6db372ca439fd5  microcore-2.8-xo-1.5-2010-01-28.tar (7.4Mb)
+d6de16bdc9c51b614bd0e6e686bc2242  microcore-3.0-xo-1-2010-08-02.tar (9.7Mb)
+e540eb423a7c0b88e7a17a39f9105cef  microcore-3.0-xo-1.5-2010-08-02.tar (9.8Mb)
 
 
 Instructions:
