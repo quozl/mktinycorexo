@@ -48,11 +48,11 @@ CMDLINE="fbcon=font:SUN12x22 superuser quiet"
 
 # the build from which to obtain matching kernel, modules and firmware
 # (corresponds to an rsync module name on rsync://updates.laptop.org/)
-OLPC_OS_BUILD=build-10.2_xo1.5-108
+OLPC_OS_BUILD=build-10.1.2_xo1.5-303
 
 # the kernel version string in that build
 # see uname --release
-OLPC_OS_KERNEL=2.6.31_xo1.5-20100108.1640.1.olpc.846ed3a
+OLPC_OS_KERNEL=2.6.31_xo1.5-20100729.1554.1.olpc.5eb99725b152499
 
 # the wireless firmware blob
 OLPC_FW_WIRELESS=sd8686.bin
@@ -61,7 +61,7 @@ OLPC_FW_WIRELESS=sd8686.bin
 VARIANT=microcore
 
 # version of this script
-VERSION=2010-01-28
+VERSION=2010-08-02
 
 # where to unpack the tinycore initrd tree
 # (is not kept)
@@ -158,7 +158,7 @@ if [ $CACHE = no ]; then
 fi
 
 if [ $CACHE = no -o ! -e cache/${VARIANT}.gz ]; then
-    rsync --archive --checksum --quiet rsync://distro.ibiblio.org/distros/tinycorelinux/2.x/release/distribution_files/${VARIANT}.gz cache/
+    rsync --archive --checksum --quiet rsync://distro.ibiblio.org/distros/tinycorelinux/3.x/release/distribution_files/${VARIANT}.gz cache/
 fi
 
 if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
