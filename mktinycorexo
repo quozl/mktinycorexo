@@ -48,11 +48,11 @@ CMDLINE="fbcon=font:SUN12x22 superuser quiet"
 
 # the build from which to obtain matching kernel, modules and firmware
 # (corresponds to an rsync module name on rsync://updates.laptop.org/)
-OLPC_OS_BUILD=build-10.1.2_xo1.5-303
+OLPC_OS_BUILD=build-10.1.3_xo1.5-361
 
 # the kernel version string in that build
 # see uname --release
-OLPC_OS_KERNEL=2.6.31_xo1.5-20100729.1554.1.olpc.5eb99725b152499
+OLPC_OS_KERNEL=2.6.31_xo1.5-20101216.1243.1.olpc.741a3e67d9e7bb8
 
 # the wireless firmware blob
 OLPC_FW_WIRELESS=sd8686.bin
@@ -61,7 +61,7 @@ OLPC_FW_WIRELESS=sd8686.bin
 VARIANT=microcore
 
 # version of this script
-VERSION=2010-08-02
+VERSION=2011-01-06
 
 # where to unpack the tinycore initrd tree
 # (is not kept)
@@ -86,7 +86,7 @@ EOF
 
 function usage {
     cat <<EOF
-build [options] [device]
+mktinycorexo [options] [device]
 
 device         optional block device to create boot partition on.
                (otherwise you must copy output/boot to a device yourself)
@@ -109,8 +109,8 @@ while [ ! -z "${1}" ]; do
     case "${1}" in
 	--xo-1)
 	    shift
-	    OLPC_OS_BUILD=build-10.1.2_xo1-303
-	    OLPC_OS_KERNEL=2.6.31_xo1-20100728.1841.1.olpc.a0a0edb7d8cbadb
+	    OLPC_OS_BUILD=build-10.1.3_xo1-360
+	    OLPC_OS_KERNEL=2.6.31_xo1-20101216.1250.1.olpc.741a3e67d9e7bb8
 	    OLPC_FW_WIRELESS=usb8388.bin
 	    ;;
 	--essid)
@@ -138,7 +138,7 @@ while [ ! -z "${1}" ]; do
 	    DEVICE=${1}
 	    shift
 	    if [ ! -e ${DEVICE} ]; then
-		echo "build: no such device ${DEVICE}"
+		echo "mktinycorexo: no such device ${DEVICE}"
 		exit 1
 	    fi
     esac
@@ -154,38 +154,49 @@ mkdir -p cache/lib/modules
 mkdir -p cache/lib/firmware
 
 if [ $CACHE = no ]; then
-    echo "fetch"
+    echo "Ignoring cache."
 fi
 
 if [ $CACHE = no -o ! -e cache/${VARIANT}.gz ]; then
+    echo -n "Downloading ${VARIANT} ... "
     rsync --archive --checksum --quiet rsync://distro.ibiblio.org/distros/tinycorelinux/3.x/release/distribution_files/${VARIANT}.gz cache/
+    echo "ok"
 fi
 
 if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
     if [ -e /boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
-	echo "using kernel from this system"
+	echo -n "Copying kernel from this system ... "
 	cp --archive /boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
+	echo "ok"
+    else
+	echo -n "Downloading kernel ... "
+	rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
+	echo "ok"
     fi
-
-    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
 fi
 
 if [ $CACHE = no -o ! -e cache/lib/modules/${OLPC_OS_KERNEL} ]; then
     if [ -e /lib/modules/${OLPC_OS_KERNEL} ]; then
-	echo "using modules from this system"
+	echo -n "Copying modules from this system ... "
 	cp --archive /lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
+	echo "ok"
+    else
+	echo -n "Downloading kernel modules ... "
+	rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
+	echo "ok"
     fi
-
-    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
 fi
 
 if [ $CACHE = no -o ! -e cache/lib/firmware/${OLPC_FW_WIRELESS} ]; then
     if [ -e /lib/firmware/${OLPC_FW_WIRELESS} ]; then
-	echo "using wireless firmware from this system"
+	echo -n "Copying wireless firmware from this system ... "
 	cp --archive /lib/firmware/${OLPC_FW_WIRELESS/.bin/*} cache/lib/firmware/
+	echo "ok"
+    else
+	echo -n "Downloading wireless firmware ... "
+	rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/${OLPC_FW_WIRELESS/.bin/*} cache/lib/firmware/
+	echo "ok"
     fi
-
-    rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/${OLPC_FW_WIRELESS/.bin/*} cache/lib/firmware/
 fi
 
 function encapsulate {
@@ -216,53 +227,68 @@ EOF
 }
 
 # unpack
-echo "unpack"
+echo -n "Unpacking initrd ... "
 mkdir -p ${TREE}
 zcat cache/${VARIANT}.gz | \
     (cd ${TREE} && cpio --extract --make-directories --quiet)
+echo "ok"
 
 # modify version
-echo "modify - version"
+echo -n "Modifying initrd - version ... "
 cat <<EOF >> ${TREE}/etc/motd
 ${VERSION} quozl@laptop.org
 
 EOF
+echo "ok"
 
 # modify kernel
-echo "modify - kernel"
+echo -n "Modifying initrd - replace kernel ... "
 rm -rf ${TREE}/lib/modules/2.6.29.1-tinycore
 cp -pr cache/lib/modules/${OLPC_OS_KERNEL} ${TREE}/lib/modules/
 cp -pr cache/lib/firmware ${TREE}/lib/
+echo "ok"
 
 # supply missing utilities from this system
-echo "modify - utilities"
-for sbin in parted iwconfig iwlist iwpriv; do
+echo -n "Modifying initrd - adding utilities ... "
+for sbin in parted sfdisk iwconfig iwlist iwpriv; do
     if [ -x /sbin/${sbin} ]; then
+	echo -n "${sbin} "
         (cd ${TREE} && encapsulate /sbin/${sbin})
     fi
 done
+for bin in gtar; do
+    if [ -x /bin/${bin} ]; then
+	echo -n "${bin} "
+        (cd ${TREE} && encapsulate /bin/${bin})
+    fi
+done
+cp xo-{backup,repart,restore} ${TREE}/usr/local/bin/
+echo ""
 
 # associate with wireless on boot
 if [ ! -z "${ESSID}" ]; then
-    echo "modify - wireless"
     echo iwconfig eth0 essid ${ESSID} >> ${TREE}/opt/bootlocal.sh
     # FIXME: on XO-1 delay until eth0 present
+    echo "Modifying initrd - wireless essid ... ok"
 fi
 
 # pack
-echo "pack"
+echo -n "Repacking initrd ... "
 (cd ${TREE} && (find | cpio -o -H newc --quiet | gzip -2 > ${INITRD}) )
 rm -rf ${TREE}
+echo "ok"
 
 # make the output filesystem tree
-echo "structure"
+echo -n "Building output tree ... "
 rm -rf output
 mkdir -p output
 mkdir -p output/boot
 
-cp ${INITRD} output/boot/${VARIANT}.gz
+cp ${INITRD} output/boot/initrd.gz
 cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
+echo "ok"
 
+echo -n "Adding OpenFirmware boot script ... "
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
 setup-smbios
@@ -273,18 +299,19 @@ visible
 .(    by quozl@laptop.org, ${VERSION}              -- ) cr cr
 " ${CMDLINE}" to boot-file
 " u:\boot\vmlinuz" to boot-device
-" u:\boot\\${VARIANT}.gz" to ramdisk
+" u:\boot\initrd.gz" to ramdisk
 boot
 EOF
 
 # cleanup
 rm -f ${INITRD}
+echo "ok"
 
-# copy to media
+# copy to drive
 if [ -w ${DEVICE} ]; then
-    echo "copy"
-    mke2fs -q ${DEVICE}
+    echo -n "Copying to drive ... "
     mount ${DEVICE} /mnt
-    rsync --archive output/boot /mnt/
+    rsync --archive --checksum output/boot /mnt/
     umount /mnt/
+    echo "ok"
 fi

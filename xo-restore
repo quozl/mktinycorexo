@@ -1,0 +1,19 @@
+#!/bin/sh
+# XO-1.5 restore backup on USB drive to microSD card
+# WARNING: destroys data on target media
+set -e
+mount /mnt/sda1
+mkdir -p /mnt/xo
+mke2fs -q -O dir_index,^resize_inode -L Boot -F /dev/mmcblk0p1
+mkfs.ext3 -q -O dir_index,^huge_file -E resize=8G -m1 -L OLPCRoot /dev/mmcblk0p2
+tune2fs -o journal_data_ordered /dev/mmcblk0p2 >/dev/null
+mount /dev/mmcblk0p2 /mnt/xo
+mkdir -p /mnt/xo/boot
+mount /dev/mmcblk0p1 /mnt/xo/boot
+gtar --extract --directory /mnt/xo --file /mnt/sda1/xo.tar .
+umount /mnt/xo/boot
+rmdir /mnt/xo/boot
+umount /mnt/xo
+rmdir /mnt/xo
+umount /mnt/sda1
+echo ok

@@ -1,0 +1,11 @@
+#!/bin/sh
+# XO-1.5 create partition table on microSD card
+# derived from olpc-os-builder/modules/sd_card_image/image.50.makefs.sh
+# WARNING: destroys data on target media
+set -e
+dd if=/dev/zero of=/dev/mmcblk0 bs=1024 count=16 >/dev/null 2>&1
+sfdisk -q -S 32 -H 32 --force -uS /dev/mmcblk0 <<EOF >/dev/null 2>&1
+8192,131072,83,*
+139264,,,
+EOF
+echo ok

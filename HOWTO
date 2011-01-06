@@ -1,23 +1,25 @@
-How to create a Tiny Core Linux bootable USB stick from upstream
-distribution components.
+How to create a Tiny Core Linux bootable USB drive
+from upstream distribution components:
 
-1.  select a USB stick that has nothing on it that is wanted,
+1.  select a USB drive that has nothing on it that is wanted,
 
-2.  select a system for building with; best fit is an XO-1.5 running
-os108, or later, or some other Linux system, (the script obtains the
-os108 kernel from the internet if it is not available on your system),
-then plug the USB stick into it,
+2.  select a system for building with; last tested on an XO-1.5
+running OLPC OS 10.1.2 build os852, or use some other Linux system,
+(the script obtains the kernel from the internet if it is not
+available on your system), then plug the USB drive into it,
 
-3.  identify the USB stick from /proc/partitions, usually /dev/sda,
+3.  identify the USB drive from /proc/partitions, such as /dev/sdc1,
 
 4.  ensure you have an internet connection,
 
 5.  as root run the script:
 
-    mktinycorexo /dev/sdZ
+    mktinycorexo /dev/sdc1
 
-... where /dev/sdZ is the answer you obtained from step 3 above,
+... where /dev/sdc1 is the answer you obtained from step 3 above,
+(take care, because any directory called boot on this device will be
+modified),
 
 6.  wait for completion,
 
-7.  boot from the USB stick.
+7.  boot from the USB drive.
