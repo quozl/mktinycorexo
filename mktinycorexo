@@ -298,8 +298,8 @@ visible
 .( -- Tiny Core Linux boot script for OpenFirmware    ) cr
 .(    by quozl@laptop.org, ${VERSION}              -- ) cr cr
 " ${CMDLINE}" to boot-file
-" u:\boot\vmlinuz" to boot-device
-" u:\boot\initrd.gz" to ramdisk
+" last:\boot\vmlinuz" to boot-device
+" last:\boot\initrd.gz" to ramdisk
 boot
 EOF
 
