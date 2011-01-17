@@ -1,0 +1,18 @@
+#!/bin/sh
+# XO-1.5 provide a reversion server to local network
+# http://wiki.laptop.org/go/Tiny_Core_Linux/Reversion
+mount /mnt/mmcblk0p1
+mount /mnt/mmcblk0p2
+cat << EOF > /etc/rsyncd.conf
+[p1]
+        path = /mnt/mmcblk0p1
+        uid = root
+        gid = root
+[p2]
+        path = /mnt/mmcblk0p2
+        uid = root
+        gid = root
+EOF
+rsync --daemon
+IP=$(ifconfig eth0|grep 'inet addr'|cut -f2 -d:|cut -f1 -d' ')
+echo "ok, IP address is ${IP}"

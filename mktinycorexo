@@ -250,19 +250,13 @@ echo "ok"
 
 # supply missing utilities from this system
 echo -n "Modifying initrd - adding utilities ... "
-for sbin in parted sfdisk iwconfig iwlist iwpriv; do
-    if [ -x /sbin/${sbin} ]; then
-	echo -n "${sbin} "
-        (cd ${TREE} && encapsulate /sbin/${sbin})
+for bin in /sbin/parted /sbin/sfdisk /sbin/iwconfig /sbin/iwlist \
+           /sbin/iwpriv /bin/gtar /usr/bin/rsync; do
+    if [ -x ${bin} ]; then
+        (cd ${TREE} && encapsulate ${bin})
     fi
 done
-for bin in gtar; do
-    if [ -x /bin/${bin} ]; then
-	echo -n "${bin} "
-        (cd ${TREE} && encapsulate /bin/${bin})
-    fi
-done
-cp xo-{backup,repart,restore} ${TREE}/usr/local/bin/
+cp xo-{backup,repart,restore,server,revert} ${TREE}/usr/local/bin/
 echo ""
 
 # associate with wireless on boot
@@ -315,3 +309,5 @@ if [ -w ${DEVICE} ]; then
     umount /mnt/
     echo "ok"
 fi
+
+# FIXME: both XO-1 and XO-1.5 on same USB drive
