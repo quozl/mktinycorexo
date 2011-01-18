@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Tiny Core Linux 2.8 target system builder for OLPC XO-1.5
-# Copyright (C) 2010  James Cameron (quozl@laptop.org)
+# Tiny Core Linux 3.4 target system builder for OLPC XO-1 and XO-1.5
+# Copyright (C) 2011  James Cameron (quozl@laptop.org)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,27 +41,35 @@ CACHE=yes
 # fbcon=font:SUN12x22, the same console font as the OLPC builds
 # superuser, boots to a root shell
 # quiet, reduces verbosity during boot
-CMDLINE="fbcon=font:SUN12x22 superuser quiet"
+# multivt, start multiple consoles
+CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt"
+
+# support XO-1 and XO-1.5
+C=yes  # XO-1
+D=yes  # XO-1.5
 
 
 # upstream versions
 
 # the build from which to obtain matching kernel, modules and firmware
 # (corresponds to an rsync module name on rsync://updates.laptop.org/)
-OLPC_OS_BUILD=build-10.1.3_xo1.5-361
+C_BUILD=build-10.1.3_xo1-860
+D_BUILD=build-10.1.3_xo1.5-860
 
 # the kernel version string in that build
 # see uname --release
-OLPC_OS_KERNEL=2.6.31_xo1.5-20101216.1243.1.olpc.741a3e67d9e7bb8
+C_KERNEL=2.6.31_xo1-20101216.1250.1.olpc.741a3e67d9e7bb8
+D_KERNEL=2.6.31_xo1.5-20101216.1243.1.olpc.741a3e67d9e7bb8
 
-# the wireless firmware blob
-OLPC_FW_WIRELESS=sd8686.bin
+# the wireless firmware blobs
+C_WIRELESS=usb8388.bin
+D_WIRELESS=sd8686.bin
 
 # the tinycore variant; tinycore or microcore
 VARIANT=microcore
 
 # version of this script
-VERSION=2011-01-06
+VERSION=2011-01-18
 
 # where to unpack the tinycore initrd tree
 # (is not kept)
@@ -74,8 +82,8 @@ INITRD=/tmp/${VARIANT}.gz.$$
 
 function license {
     cat <<EOF
-Tiny Core Linux target system builder for OLPC XO-1.5, ${VERSION}
-Copyright (C) 2010  James Cameron (quozl@laptop.org)
+Tiny Core Linux target system builder for OLPC XO-1 and XO-1.5, ${VERSION}
+Copyright (C) 2011  James Cameron (quozl@laptop.org)
 
 This program comes with ABSOLUTELY NO WARRANTY; for details see source.
 This is free software, and you are welcome to redistribute it under
@@ -96,6 +104,10 @@ device         optional block device to create boot partition on.
 
 --essid id     associate to a wireless network during boot.
 
+--no-xo-1      disable XO-1 support
+
+--no-xo-1.5    disable XO-1.5 support
+
 --version      displays script version.
 
 --license      displays license.
@@ -109,9 +121,15 @@ while [ ! -z "${1}" ]; do
     case "${1}" in
 	--xo-1)
 	    shift
-	    OLPC_OS_BUILD=build-10.1.3_xo1-360
-	    OLPC_OS_KERNEL=2.6.31_xo1-20101216.1250.1.olpc.741a3e67d9e7bb8
-	    OLPC_FW_WIRELESS=usb8388.bin
+	    echo "--xo-1 deprecated, ignored, use --no-xo-1.5"
+	    ;;
+	--no-xo-1)
+	    shift
+	    C=no
+	    ;;
+	--no-xo-1.5)
+	    shift
+	    D=no
 	    ;;
 	--essid)
 	    shift
@@ -163,41 +181,79 @@ if [ $CACHE = no -o ! -e cache/${VARIANT}.gz ]; then
     echo "ok"
 fi
 
-if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
-    if [ -e /boot/vmlinuz-${OLPC_OS_KERNEL} ]; then
-	echo -n "Copying kernel from this system ... "
-	cp --archive /boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
-	echo "ok"
-    else
-	echo -n "Downloading kernel ... "
-	rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/boot/vmlinuz-${OLPC_OS_KERNEL} cache/boot/
-	echo "ok"
+function get {
+    CACHE=$1
+    KERNEL=$2
+    BUILD=$3
+    WIRELESS=$4
+    if [ $CACHE = no -o ! -e cache/boot/vmlinuz-${KERNEL} ]; then
+        if [ -e /boot/vmlinuz-${KERNEL} ]; then
+            echo -n "Copying kernel from this system ... "
+            cp --archive /boot/vmlinuz-${KERNEL} cache/boot/
+            echo "ok"
+        else
+            echo -n "Downloading kernel ... "
+            rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/boot/vmlinuz-${KERNEL} cache/boot/
+            echo "ok"
+        fi
     fi
+    if [ $CACHE = no -o ! -e cache/lib/modules/${KERNEL} ]; then
+        if [ -e /lib/modules/${KERNEL} ]; then
+            echo -n "Copying modules from this system ... "
+            cp --archive /lib/modules/${KERNEL} cache/lib/modules/
+            echo "ok"
+        else
+            echo -n "Downloading kernel modules ... "
+            rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/modules/${KERNEL} cache/lib/modules/
+            echo "ok"
+        fi
+    fi
+    if [ $CACHE = no -o ! -e cache/lib/firmware/${WIRELESS} ]; then
+        if [ -e /lib/firmware/${WIRELESS} ]; then
+            echo -n "Copying wireless firmware from this system ... "
+            cp --archive /lib/firmware/${WIRELESS/.bin/*} cache/lib/firmware/
+            echo "ok"
+        else
+            echo -n "Downloading wireless firmware ... "
+            rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/firmware/${WIRELESS/.bin/*} cache/lib/firmware/
+            echo "ok"
+        fi
+    fi
+}
+
+if [ $C = yes ]; then
+    get ${CACHE} ${C_KERNEL} ${C_BUILD} ${C_WIRELESS}
+fi
+if [ $D = yes ]; then
+    get ${CACHE} ${D_KERNEL} ${D_BUILD} ${D_WIRELESS}
 fi
 
-if [ $CACHE = no -o ! -e cache/lib/modules/${OLPC_OS_KERNEL} ]; then
-    if [ -e /lib/modules/${OLPC_OS_KERNEL} ]; then
-	echo -n "Copying modules from this system ... "
-	cp --archive /lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
-	echo "ok"
-    else
-	echo -n "Downloading kernel modules ... "
-	rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/modules/${OLPC_OS_KERNEL} cache/lib/modules/
-	echo "ok"
-    fi
-fi
+# unpack
+echo -n "Unpacking initrd ... "
+mkdir -p ${TREE}
+zcat cache/${VARIANT}.gz | \
+    (cd ${TREE} && cpio --extract --make-directories --quiet)
+echo "ok"
 
-if [ $CACHE = no -o ! -e cache/lib/firmware/${OLPC_FW_WIRELESS} ]; then
-    if [ -e /lib/firmware/${OLPC_FW_WIRELESS} ]; then
-	echo -n "Copying wireless firmware from this system ... "
-	cp --archive /lib/firmware/${OLPC_FW_WIRELESS/.bin/*} cache/lib/firmware/
-	echo "ok"
-    else
-	echo -n "Downloading wireless firmware ... "
-	rsync --archive --checksum rsync://updates.laptop.org/${OLPC_OS_BUILD}/root/lib/firmware/${OLPC_FW_WIRELESS/.bin/*} cache/lib/firmware/
-	echo "ok"
-    fi
+# modify version
+echo -n "Modifying initrd - version ... "
+cat <<EOF >> ${TREE}/etc/motd
+${VERSION} quozl@laptop.org
+
+EOF
+echo "ok"
+
+# modify kernel
+echo -n "Modifying initrd - replace kernel ... "
+rm -rf ${TREE}/lib/modules/2.6.29.1-tinycore
+if [ $C = yes ]; then
+    cp -pr cache/lib/modules/${C_KERNEL} ${TREE}/lib/modules/
 fi
+if [ $D = yes ]; then
+    cp -pr cache/lib/modules/${D_KERNEL} ${TREE}/lib/modules/
+fi
+cp -pr cache/lib/firmware ${TREE}/lib/
+echo "ok"
 
 function encapsulate {
     bin=${1}
@@ -225,28 +281,6 @@ EOF
 	fi
     done
 }
-
-# unpack
-echo -n "Unpacking initrd ... "
-mkdir -p ${TREE}
-zcat cache/${VARIANT}.gz | \
-    (cd ${TREE} && cpio --extract --make-directories --quiet)
-echo "ok"
-
-# modify version
-echo -n "Modifying initrd - version ... "
-cat <<EOF >> ${TREE}/etc/motd
-${VERSION} quozl@laptop.org
-
-EOF
-echo "ok"
-
-# modify kernel
-echo -n "Modifying initrd - replace kernel ... "
-rm -rf ${TREE}/lib/modules/2.6.29.1-tinycore
-cp -pr cache/lib/modules/${OLPC_OS_KERNEL} ${TREE}/lib/modules/
-cp -pr cache/lib/firmware ${TREE}/lib/
-echo "ok"
 
 # supply missing utilities from this system
 echo -n "Modifying initrd - adding utilities ... "
@@ -279,21 +313,25 @@ mkdir -p output
 mkdir -p output/boot
 
 cp ${INITRD} output/boot/initrd.gz
-cp cache/boot/vmlinuz-${OLPC_OS_KERNEL} output/boot/vmlinuz
+if [ $C = yes ]; then
+    cp cache/boot/vmlinuz-${C_KERNEL} output/boot/vmlinuz.C
+fi
+if [ $D = yes ]; then
+    cp cache/boot/vmlinuz-${D_KERNEL} output/boot/vmlinuz.D
+fi
 echo "ok"
 
 echo -n "Adding OpenFirmware boot script ... "
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
-setup-smbios
-unfreeze
-dcon-unfreeze
 visible
 .( -- Tiny Core Linux boot script for OpenFirmware    ) cr
 .(    by quozl@laptop.org, ${VERSION}              -- ) cr cr
+" model" " /" find-package drop get-package-property 2drop 1 " M" \$set-macro
 " ${CMDLINE}" to boot-file
-" last:\boot\vmlinuz" to boot-device
 " last:\boot\initrd.gz" to ramdisk
+" last:\boot\vmlinuz.\${M}" expand$ to boot-device
+cr
 boot
 EOF
 
@@ -309,5 +347,3 @@ if [ -w ${DEVICE} ]; then
     umount /mnt/
     echo "ok"
 fi
-
-# FIXME: both XO-1 and XO-1.5 on same USB drive
