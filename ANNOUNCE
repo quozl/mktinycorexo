@@ -1,37 +1,47 @@
-Announcing a build of Tiny Core Linux for XO-1 and XO-1.5 based on
-OLPC development build os303 (leading up to release 10.1.2).
+Announcing a build of Tiny Core Linux for the OLPC XO.
 
-I've found this useful for testing and diagnosis without touching the
-internal NAND or SD storage.
+This is useful for testing, diagnosis, and recovery of filesystems on
+an unlocked XO.
+
+My thanks to George Hunt and Yioryos Asprobounitis for all their hard
+work toward this.  All I did was pull the strings, I reckon.
 
 
 Features:
 
-- based on Tiny Core Linux 3.0 microcore variant, configured for a
-  single root shell in text mode,
+- runs on XO-1, XO-1.5, XO-1.75, or XO-4,
 
-- uses the OLPC kernel, for hardware support,
+- configured for a single root shell in text mode, with alternate
+  consoles available for login,
 
-- includes the wireless firmware shipped with OLPC builds, and binary
-  redistribution of wireless tools from the same builds,
+- based on Core 4.7.6, uses the OLPC kernel from 13.2.0-7, and
+  includes latest signed Open Firmware versions for automatic upgrade,
+
+- includes wireless firmware for each laptop, and wireless
+  tools from Tiny Core Linux.
 
 
 Downloads:
 
 http://dev.laptop.org/~quozl/tinycore/
 
-d6de16bdc9c51b614bd0e6e686bc2242  microcore-3.0-xo-1-2010-08-02.tar (9.7Mb)
-e540eb423a7c0b88e7a17a39f9105cef  microcore-3.0-xo-1.5-2010-08-02.tar (9.8Mb)
+c5370f69f3fc18546c480774941d6c11  core-4.7.6-xo-2013-05-24.zip
 
 
 Instructions:
 
-a.  unpack the tar file,
+a.  unzip the file on a USB drive or SD card,
 
-b.  place the boot directory on an ext2 formatted USB stick or SD
-card,
+b.  ensure the XO is unlocked,
 
 c.  boot from the media.
+
+
+Known bugs:
+
+- serial console shell might not start,
+
+- associates automatically with a network named "qz".
 
 
 References:
