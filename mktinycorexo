@@ -27,10 +27,10 @@ set -e
 
 # the block device to create the partition on
 # (ignored if it does not exist)
-DEVICE=/dev/disk/by-id/usb-DSE_Micro_Drive_0000000000002F-0:0-part1
+DEVICE=
 
 # your wireless network
-ESSID=qz
+ESSID=
 
 # version of this script
 VERSION=2013-05-24
