@@ -143,6 +143,10 @@ device         optional block device to create boot partition on.
 
 --no-xo-4      disable XO-4 support
 
+--tczloc x     set the method to include Tiny Core Linux packages in the build
+               the options are initrd and device
+               the default is to prompt the user
+
 -d|--devel     run the script in development mode
 
 --version      displays script version.
@@ -250,13 +254,13 @@ if [ -z $TCZLOC ]; then
     echo "Just \"enter\" to include them in the initrd"
     read USB
     if [ "$USB" = "u" ];then
-        TCZLOC="in_device"
+        TCZLOC="device"
         echo ""
         echo "OK. TC extensions will be placed in the device \"cde\" folder"
         KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
         sleep 2
     else
-        TCZLOC="in_initrd"
+        TCZLOC="initrd"
         echo "OK. TC extensions will be included in the initrd"
         KERCMDLINE=""
         sleep 2
@@ -560,7 +564,7 @@ if [ -d ${TREE_ARM} ]; then
 fi
 
 # Add TC extension in initrd
-if [ "$TCZLOC" = "in_initrd" ]; then
+if [ "$TCZLOC" = "initrd" ]; then
     if [ -d ${TREE_X86} ]; then
         mkdir -p ${TREE_X86}/tmp/builtin
         cp -aR  cache/TCZs_x86/tce/* ${TREE_X86}/tmp/builtin/
@@ -640,7 +644,7 @@ if [ $F = yes ]; then
 fi
 echo "ok"
 
-if [ "$TCZLOC" = "in_device" ] ; then
+if [ "$TCZLOC" = "device" ] ; then
     mkdir -p output/cde/optional
     cp -a cache/TCZs_x86/tce/onboot.lst output/cde/XO_x86.lst
     cp -a cache/TCZs_x86/tce/optional/* output/cde/optional/
