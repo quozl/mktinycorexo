@@ -147,7 +147,7 @@ device         optional block device to create boot partition on.
                the options are initrd and device
                the default is to prompt the user
 
--d|--devel     run the script in development mode
+-d|--debug     allow inspection of the initrd filesystem
 
 --version      displays script version.
 
