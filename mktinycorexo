@@ -754,7 +754,6 @@ if [ "$COPY" = "c" ]; then
     echo "if not, hit enter to finish and transfer the files manually"
     read TRANSFER
     if [ "$TRANSFER" = "t" ];then
-        rm -rf $DEVICE/boot
         rsync --archive --checksum --delete output/* $DEVICE/
         sync
     else
