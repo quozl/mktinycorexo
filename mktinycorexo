@@ -147,7 +147,7 @@ device         optional block device to create boot partition on.
                the options are initrd and device
                the default is to prompt the user
 
--d|--debug     allow inspection of the initrd filesystem
+--inspect      pause to allow inspection of the initrd filesystem
 
 --version      displays script version.
 
@@ -213,10 +213,9 @@ while [ ! -z "${1}" ]; do
             shift
             CACHE=no
             ;;
-        -d|--debug)
+        --inspect)
             shift
-            set -x
-            INSPECT="yes"
+            INSPECT=yes
             ;;
         --help)
             usage
@@ -592,8 +591,7 @@ if [ "$TCZLOC" = "initrd" ]; then
 fi
 
 # A chance to inspect change things
-if [ "$INSPECT" = "yes" ]; then
-    set +x
+if [ $INSPECT = yes ]; then
     echo -e "\\0033[1;34m"
     echo "You can now inspect and make changes in: "
     [ -d ${TREE_X86} ] && echo "    $TREE_X86"
@@ -604,7 +602,6 @@ if [ "$INSPECT" = "yes" ]; then
     echo -en "\\0033[0;39m"
     sh < /dev/tty > /dev/tty || true
     read CONTINUE
-    set -x
     if [ "$CONTINUE" != "" ];then
         exit 0
     fi
