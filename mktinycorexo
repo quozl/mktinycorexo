@@ -125,7 +125,7 @@ EOF
 
 function usage {
     cat <<EOF
-mktinycorexo [options] [device]
+$0 [options] [device]
 
 device         optional block device to create boot partition on.
                (otherwise you must copy output/boot to a device yourself)
@@ -234,7 +234,7 @@ while [ ! -z "${1}" ]; do
             DEVICE=${1}
             shift
             if [ ! -e ${DEVICE} ]; then
-                echo "mktinycorexo: no such device ${DEVICE}"
+                echo "$0: no such device ${DEVICE}"
                 exit 1
             fi
     esac
