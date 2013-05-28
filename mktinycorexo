@@ -32,6 +32,9 @@ DEVICE=
 # your wireless network
 ESSID=
 
+# whether to pause for inspection
+INSPECT=no
+
 # version of this script
 VERSION=2013-05-24
 
