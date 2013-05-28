@@ -602,7 +602,7 @@ if [ "$INSPECT" = "yes" ]; then
     echo "When done, exit the subshell and then hit \"enter\" to continue"
     echo "or any letter and then \"enter\" to stop and cleanup."
     echo -en "\\0033[0;39m"
-    sh < /dev/tty > /dev/tty
+    sh < /dev/tty > /dev/tty || true
     read CONTINUE
     set -x
     if [ "$CONTINUE" != "" ];then
