@@ -70,6 +70,8 @@ CORE_VERSION=4.x
 # tinycore initramfs name
 CORE_INITRD_X86=core
 CORE_INITRD_ARM=piCore
+CORE_INITRD_ARM_ARCH=armv6
+CORE_FALLBACK_ARM_ARCH=armv7
 
 
 # upstream versions, one laptop per child
@@ -303,8 +305,8 @@ fi
 
 if [ $E = yes -o $F = yes ]; then
     if [ $CACHE = no -o ! -f cache/${CORE_INITRD_ARM}.gz ]; then
-        echo -n "Downloading ${CORE_INITRD_ARM} ... "
-        wget -q -c -P cache/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/armv6/${CORE_INITRD_ARM}.gz
+        echo -n "Downloading ${CORE_INITRD_ARM}.gz ... "
+        wget -q -c -P cache/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
         echo "ok"
     fi
 fi
@@ -461,19 +463,26 @@ ncurses.tcz
 ncurses-utils.tcz
 EOF
 
-for FILE in $(<cache/TCZs_x86/tce/onboot.lst); do
-    if [ ! -f cache/TCZs_x86/tce/optional/$FILE ] ; then
-        wget -q -c -P cache/TCZs_x86/tce/optional/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/x86/tcz/$FILE
-        wget -q -c -P cache/TCZs_x86/tce/optional/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/x86/tcz/$FILE.md5.txt
-        wget -q -c -P cache/TCZs_x86/tce/optional/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/x86/tcz/$FILE.dep || true
+flags="-q -c -P cache/TCZs_x86/tce/optional/"
+base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+for file in $(<cache/TCZs_x86/tce/onboot.lst); do
+    if [ ! -f cache/TCZs_x86/tce/optional/$file ] ; then
+        wget ${flags} ${base}/x86/tcz/$file
+        wget ${flags} ${base}/x86/tcz/$file.md5.txt
+        wget ${flags} ${base}/x86/tcz/$file.dep || true
     fi
 done
 
-for FILE in $(<cache/TCZs_arm/tce/onboot.lst); do
-    if [ ! -f cache/TCZs_arm/tce/optional/$FILE ] ; then
-        wget -q -c -P cache/TCZs_arm/tce/optional/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/armv6/tcz/$FILE
-        wget -q -c -P cache/TCZs_arm/tce/optional/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/armv6/tcz/$FILE.md5.txt
-        wget -q -c -P cache/TCZs_arm/tce/optional/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/armv6/tcz/$FILE.dep || true
+flags="-q -c -P cache/TCZs_arm/tce/optional/"
+base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+for file in $(<cache/TCZs_arm/tce/onboot.lst); do
+    if [ ! -f cache/TCZs_arm/tce/optional/$file ] ; then
+        wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file || \
+        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file
+        wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
+        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
+        wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
+        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep
     fi
 done
 
