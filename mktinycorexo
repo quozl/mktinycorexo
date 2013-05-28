@@ -730,7 +730,7 @@ rm -rf $(pwd)/tmp/
 echo "ok"
 
 # copy to drive
-if [ -w ${DEVICE} ]; then
+if [ -n ${DEVICE} ]; then
     echo -n "Copying to drive ... "
     mount ${DEVICE} /mnt
     rsync --archive --checksum --delete output/boot /mnt/
