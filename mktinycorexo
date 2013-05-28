@@ -143,7 +143,7 @@ device         optional block device to create boot partition on.
 
 --no-xo-4      disable XO-4 support
 
---tczloc x     set the method to include Tiny Core Linux packages in the build
+--tczloc x     where in the build to place the Tiny Core Linux packages
                the options are initrd and device
                the default is to prompt the user
 
@@ -255,18 +255,26 @@ if [ -z $TCZLOC ]; then
     read USB
     if [ "$USB" = "u" ];then
         TCZLOC="device"
-        echo ""
-        echo "OK. TC extensions will be placed in the device \"cde\" folder"
-        KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
-        sleep 2
     else
         TCZLOC="initrd"
-        echo "OK. TC extensions will be included in the initrd"
-        KERCMDLINE=""
-        sleep 2
     fi
     echo -en "\\0033[0;39m"
 fi
+
+case $TCZLOC in
+    device)
+        echo "Packages will be placed in a folder cde"
+        KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
+	;;
+    initrd)
+        echo "Packages will be placed in the initrd"
+        KERCMDLINE=""
+	;;
+    *)
+	echo "$0: invalid value for --tczloc"
+	usage
+	exit 1
+esac
 
 # build the cache
 mkdir -p cache
