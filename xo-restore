@@ -1,5 +1,5 @@
 #!/bin/sh
-# XO-1.5 restore backup on USB drive to microSD card
+# XO-1.5 XO-1.75 XO-4 restore backup on USB drive to internal storage
 # WARNING: destroys data on target media
 set -e
 mount /mnt/sda1
@@ -10,7 +10,7 @@ tune2fs -o journal_data_ordered /dev/mmcblk0p2 >/dev/null
 mount /dev/mmcblk0p2 /mnt/xo
 mkdir -p /mnt/xo/boot
 mount /dev/mmcblk0p1 /mnt/xo/boot
-gtar --extract --directory /mnt/xo --file /mnt/sda1/xo.tar .
+tar --extract --directory /mnt/xo --file /mnt/sda1/xo.tar .
 umount /mnt/xo/boot
 rmdir /mnt/xo/boot
 umount /mnt/xo

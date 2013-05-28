@@ -1,5 +1,5 @@
 #!/bin/sh
-# XO-1.5 provide a reversion server to local network
+# XO-1.5 XO-1.75 XO-4 provide a reversion server to local network
 # http://wiki.laptop.org/go/Tiny_Core_Linux/Reversion
 mount /mnt/mmcblk0p1
 mount /mnt/mmcblk0p2

@@ -435,6 +435,7 @@ wget.tcz
 ncurses-common.tcz
 ncurses.tcz
 ncurses-utils.tcz
+rsync.tcz
 EOF
 
 cat <<EOF > cache/TCZs_arm/tce/onboot.lst
@@ -461,6 +462,7 @@ wget.tcz
 ncurses-common.tcz
 ncurses.tcz
 ncurses-utils.tcz
+rsync.tcz
 EOF
 
 flags="-q -c -P cache/TCZs_x86/tce/optional/"
@@ -544,7 +546,7 @@ echo "ok"
 echo -n "Modifying initrd - add OLPC XO specific scripts ... "
 for x in ${TREE_X86} ${TREE_ARM}; do
     if [ -d $x ]; then
-        cp xo-{backup,repart,restore,server,revert} ${x}/usr/local/bin/
+        cp xo-{backup,restore,server,revert} ${x}/usr/local/bin/
     fi
 done
 echo "ok"

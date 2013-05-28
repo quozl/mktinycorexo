@@ -1,12 +1,12 @@
 #!/bin/sh
-# XO-1.5 make a backup of microSD card to USB drive
+# XO-1.5 XO-1.75 XO-4 make a backup of internal storage to a USB drive
 set -e
 mount /mnt/sda1
 mkdir -p /mnt/xo
 mount /dev/mmcblk0p2 /mnt/xo
 mkdir -p /mnt/xo/boot
 mount /dev/mmcblk0p1 /mnt/xo/boot
-gtar --create --directory /mnt/xo --file /mnt/sda1/xo.tar .
+tar --create --directory /mnt/xo --file /mnt/sda1/xo.tar .
 umount /mnt/xo/boot
 rmdir /mnt/xo/boot
 umount /mnt/xo

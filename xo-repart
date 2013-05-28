@@ -1,5 +1,5 @@
 #!/bin/sh
-# XO-1.5 create partition table on microSD card
+# XO-1.5 XO-1.75 XO-4 create partition table on internal storage
 # derived from olpc-os-builder/modules/sd_card_image/image.50.makefs.sh
 # WARNING: destroys data on target media
 set -e

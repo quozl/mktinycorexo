@@ -1,5 +1,5 @@
 #!/bin/sh
-# XO-1.5 revert filesystem to pristine state using a nearby server
+# XO-1.5 XO-1.75 XO-4 revert filesystem to pristine state using a nearby server
 # http://wiki.laptop.org/go/Tiny_Core_Linux/Reversion
 set -e
 IP=${1}
