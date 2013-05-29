@@ -141,30 +141,19 @@ $0 [options] [device]
 
 device         optional block device to create boot partition on.
                (otherwise you must copy output/* to a device yourself)
-
 --no-cache     ignores the local cache previously built.
                (verifies cache against upstream)
-
 --essid id     associate to a wireless network during boot.
-
 --no-xo-1      disable XO-1 support
-
 --no-xo-1.5    disable XO-1.5 support
-
 --no-xo-1.75   disable XO-1.75 support
-
 --no-xo-4      disable XO-4 support
-
 --tczloc x     where in the build to place the Tiny Core Linux packages
                the options are initrd and device
                the default is to prompt the user
-
 --inspect      pause to allow inspection of the initrd filesystem
-
 --version      displays script version.
-
 --license      displays license.
-
 --help         displays this what you are looking at, mate.
 EOF
 }
