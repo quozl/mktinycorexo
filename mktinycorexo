@@ -234,7 +234,10 @@ while [ ! -z "${1}" ]; do
             DEVICE=${1}
             shift
             if [ ! -e ${DEVICE} ]; then
+                echo -e "\\0033[1;31m"
                 echo "$0: no such device ${DEVICE}"
+                echo -en "\\0033[0;39m"
+                usage
                 exit 1
             fi
     esac
@@ -252,26 +255,32 @@ if [ -z $TCZLOC ]; then
     echo "To install TCZs in a separate folder in the boot device"
     echo "rather than the initrd, hit \"u\" and then \"enter\". "
     echo "Just \"enter\" to include them in the initrd"
+    echo -en "\\0033[0;39m"
     read USB
     if [ "$USB" = "u" ];then
         TCZLOC="device"
     else
         TCZLOC="initrd"
     fi
-    echo -en "\\0033[0;39m"
 fi
 
 case $TCZLOC in
     device)
+        echo -e "\\0033[1;34m"
         echo "Packages will be placed in a folder cde"
+        echo -en "\\0033[0;39m"
         KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
 	;;
     initrd)
+        echo -e "\\0033[1;34m"
         echo "Packages will be placed in the initrd"
+        echo -en "\\0033[0;39m"
         KERCMDLINE=""
 	;;
     *)
+	echo -e "\\0033[1;31m"
 	echo "$0: invalid value for --tczloc"
+	echo -en "\\0033[0;39m"
 	usage
 	exit 1
 esac
