@@ -140,7 +140,7 @@ function usage {
 $0 [options] [device]
 
 device         optional block device to create boot partition on.
-               (otherwise you must copy output/boot to a device yourself)
+               (otherwise you must copy output/* to a device yourself)
 
 --no-cache     ignores the local cache previously built.
                (verifies cache against upstream)
@@ -751,7 +751,7 @@ echo "ok"
 if [ ! -z ${DEVICE} ]; then
     echo -n "Copying to drive ... "
     mount ${DEVICE} /mnt
-    rsync --archive --checksum --delete output/boot /mnt/
+    rsync --archive --checksum --delete output/* /mnt/
     umount /mnt/
     echo "ok"
     exit 0
