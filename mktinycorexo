@@ -36,6 +36,9 @@ DEVICE=
 # your wireless network
 ESSID=
 
+# where to put packages
+TCZLOC=
+
 # whether to pause for inspection
 INSPECT=no
 
