@@ -27,6 +27,7 @@ VERSION=2013-05-29
 
 
 # your local defaults
+# may be overidden with ~/.mktinycorexo
 
 # the block device to create the partition on
 # (ignored if it does not exist)
