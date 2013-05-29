@@ -748,7 +748,6 @@ if [ -n ${DEVICE} ]; then
     echo -n "Copying to drive ... "
     mount ${DEVICE} /mnt
     rsync --archive --checksum --delete output/boot /mnt/
-    echo ; ls -l /mnt/boot
     umount /mnt/
     echo "ok"
     exit 0
