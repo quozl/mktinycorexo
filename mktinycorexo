@@ -484,7 +484,7 @@ for file in $(<cache/TCZs_arm/tce/onboot.lst); do
         wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
         wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
         wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
-        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep
+        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || true
     fi
 done
 
