@@ -155,7 +155,7 @@ device         optional block device to create boot partition on.
                the options are "initrd" and "device"
                the default is to include TC packages in the initrd
 --inspect      pause to allow inspection of the initrd filesystem
---colour       pause to allow inspection of the initrd filesystem
+--colour       print script outpout in colour
 --version      displays script version.
 --license      displays license.
 --help         displays this what you are looking at, mate.
