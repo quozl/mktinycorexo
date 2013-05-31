@@ -37,7 +37,7 @@ DEVICE=
 ESSID=
 
 # where to put packages
-TCZLOC=
+TCZLOC=initrd
 
 # whether to pause for inspection
 INSPECT=no
