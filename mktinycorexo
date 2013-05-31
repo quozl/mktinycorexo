@@ -247,11 +247,21 @@ while [ ! -z "${1}" ]; do
         --essid)
             shift
             ESSID=${1}
+            if [ "${1}" = "" ] ; then
+				p_error "$0: invalid value for --essid"
+				usage
+				exit 1
+            fi
             shift
             ;;
         --tczloc)
             shift
             TCZLOC=${1}
+            if [ "${1}" = "" ] ; then
+				p_error "$0: invalid value for --tczloc"
+				usage
+				exit 1
+            fi
             shift
             ;;
         --no-cache)
