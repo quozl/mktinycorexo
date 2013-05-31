@@ -152,8 +152,8 @@ device         optional block device to create boot partition on.
 --no-xo-1.75   disable XO-1.75 support
 --no-xo-4      disable XO-4 support
 --tczloc x     where in the build to place the Tiny Core Linux packages
-               the options are initrd and device
-               the default is to prompt the user
+               the options are "initrd" and "device"
+               the default is to include TC packages in the initrd
 --inspect      pause to allow inspection of the initrd filesystem
 --colour       pause to allow inspection of the initrd filesystem
 --version      displays script version.
@@ -257,7 +257,13 @@ while [ ! -z "${1}" ]; do
         --tczloc)
             shift
             TCZLOC=${1}
-            if [ "${1}" = "" ] ; then
+            if [ "${1}" = "initrd" ] ; then
+				p_informational "Packages will be placed in the initrd"
+				KERCMDLINE=""
+			elif [ "${1}" = "device" ] ; then
+				p_informational "Packages will be placed in a directory cde"
+				KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
+            else
 				p_error "$0: invalid value for --tczloc"
 				usage
 				exit 1
@@ -301,39 +307,6 @@ while [ ! -z "${1}" ]; do
 done
 
 license
-
-# Prompt for installation of TC extensions into a usb drive
-if [ -z $TCZLOC ]; then
-    echo -e "\\0033[1;34m"
-    echo "TCZ extensions will be included in the initrd by default."
-    echo "Adding more extensions could make a big initrd that may be"
-    echo "a problem for the XO-1 in particular."
-    echo "To install TCZs in a separate directory in the boot device"
-    echo "rather than the initrd, hit \"u\" and then \"enter\". "
-    echo "Just \"enter\" to include them in the initrd"
-    echo -en "\\0033[0;39m"
-    read USB
-    if [ "$USB" = "u" ];then
-        TCZLOC="device"
-    else
-        TCZLOC="initrd"
-    fi
-fi
-
-case $TCZLOC in
-    device)
-        p_informational "Packages will be placed in a directory cde"
-        KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
-	;;
-    initrd)
-        p_informational "Packages will be placed in the initrd"
-        KERCMDLINE=""
-	;;
-    *)
-	p_error "$0: invalid value for --tczloc"
-	usage
-	exit 1
-esac
 
 # build the cache
 mkdir -p cache
