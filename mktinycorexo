@@ -360,37 +360,34 @@ function get_kernel {
     FIRMWARE=$4
     if [ $CACHE = no -o ! -f cache/boot/vmlinuz-${MODULES} ]; then
         if [ -e /boot/vmlinuz-${MODULES} ]; then
-            echo -n "Copying kernel from this system ... "
+            p_begin "Copying kernel from this system ... "
             cp --archive /boot/vmlinuz-${MODULES} cache/boot/
-            echo "ok"
-        else
-            echo -n "Downloading kernel ... "
-            rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/boot/${KERNEL} cache/boot/
-            unzip -p cache/boot/${KERNEL} data.img > cache/boot/vmlinuz-${MODULES}
-            echo "ok"
+            p_end "ok"
         fi
+        p_begin "Downloading kernel ... "
+        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/boot/${KERNEL} cache/boot/
+        unzip -p cache/boot/${KERNEL} data.img > cache/boot/vmlinuz-${MODULES}
+        p_end "ok"
     fi
     if [ $CACHE = no -o ! -e cache/lib/modules/${MODULES} ]; then
         if [ -e /lib/modules/${MODULES} ]; then
-            echo -n "Copying modules from this system ... "
+            p_begin "Copying modules from this system ... "
             cp --archive /lib/modules/${MODULES} cache/lib/modules/
-            echo "ok"
-        else
-            echo -n "Downloading kernel modules ... "
-            rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/modules/${MODULES} cache/lib/modules/
-            echo "ok"
+            p_end "ok"
         fi
+        p_begin "Downloading kernel modules ... "
+        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/modules/${MODULES} cache/lib/modules/
+        p_end "ok"
     fi
     if [ $CACHE = no -o ! -e cache/boot/${FIRMWARE} ]; then
         if [ -e /boot/${FIRMWARE} ]; then
-            echo -n "Copying firmware from this system ... "
+            p_begin "Copying firmware from this system ... "
             cp --archive /boot/${FIRMWARE} cache/boot/
-            echo "ok"
-        else
-            echo -n "Downloading kernel modules ... "
-            rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/boot/${FIRMWARE} cache/boot/
-            echo "ok"
+            p_end "ok"
         fi
+        p_begin "Downloading firmware ... "
+        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/boot/${FIRMWARE} cache/boot/
+        p_end "ok"
     fi
 }
 
@@ -399,14 +396,13 @@ function get_wireless_firmware {
     if [ $CACHE = no -o ! -e cache/lib/firmware/${1} ]; then
         mkdir -p cache/lib/firmware/${DN}/
         if [ -e /lib/firmware/${1} ]; then
-            echo -n "Copying wireless firmware from this system ... "
+            p_begin "Copying wireless firmware from this system ... "
             cp --archive /lib/firmware/${1} cache/lib/firmware/${DN}/
-            echo "ok"
-        else
-            echo -n "Downloading wireless firmware ... "
-            rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/firmware/${1} cache/lib/firmware/${DN}
-            echo "ok"
+            p_end "ok"
         fi
+        p_begin "Downloading wireless firmware ... "
+        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/firmware/${1} cache/lib/firmware/${DN}
+        p_end "ok"
     fi
 }
 
