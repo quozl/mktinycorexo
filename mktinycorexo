@@ -42,6 +42,9 @@ TCZLOC=initrd
 # whether to pause for inspection
 INSPECT=no
 
+# whether to use colour in output
+COLOUR=no
+
 
 # option defaults
 
@@ -152,10 +155,51 @@ device         optional block device to create boot partition on.
                the options are initrd and device
                the default is to prompt the user
 --inspect      pause to allow inspection of the initrd filesystem
+--colour       pause to allow inspection of the initrd filesystem
 --version      displays script version.
 --license      displays license.
 --help         displays this what you are looking at, mate.
 EOF
+}
+
+function p_error {
+    if [ "$COLOUR" = "yes" ]; then
+	echo -e "\e[1;91m$1\e[0;39m"
+    else
+	echo "$1"
+    fi
+}
+
+function p_warning {
+    if [ "$COLOUR" = "yes" ]; then
+	echo -e "\e[1;93m$1\e[0;39m"
+    else
+	echo "$1"
+    fi
+}
+
+function p_informational {
+    if [ "$COLOUR" = "yes" ]; then
+	echo -e "\e[1;92m$1\e[0;39m"
+    else
+	echo "$1"
+    fi
+}
+
+function p_begin {
+    if [ "$COLOUR" = "yes" ]; then
+	echo -ne "\e[1;96m$1\e[0;39m"
+    else
+	echo -n "$1"
+    fi
+}
+
+function p_end {
+    if [ "$COLOUR" = "yes" ]; then
+	echo -e "\e[1;92m$1\e[0;39m"
+    else
+	echo "$1"
+    fi
 }
 
 # process options and arguments
@@ -217,6 +261,10 @@ while [ ! -z "${1}" ]; do
         --inspect)
             shift
             INSPECT=yes
+            ;;
+        --colour)
+	    shift
+	    COLOUR=yes
             ;;
         --help)
             usage
