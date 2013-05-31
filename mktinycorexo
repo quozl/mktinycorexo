@@ -59,7 +59,7 @@ CACHE=yes
 # quiet, reduces verbosity during boot
 # multivt, start multiple consoles
 # nozswap, do not use zram swap
-# cde, use extensions from cde folder
+# cde, use extensions from cde directory
 # lst=, name of file with extensions (tcz) to be loaded at boot time
 CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0 $KERCMDLINE"
 
@@ -298,7 +298,7 @@ if [ -z $TCZLOC ]; then
     echo "TCZ extensions will be included in the initrd by default."
     echo "Adding more extensions could make a big initrd that may be"
     echo "a problem for the XO-1 in particular."
-    echo "To install TCZs in a separate folder in the boot device"
+    echo "To install TCZs in a separate directory in the boot device"
     echo "rather than the initrd, hit \"u\" and then \"enter\". "
     echo "Just \"enter\" to include them in the initrd"
     echo -en "\\0033[0;39m"
@@ -312,7 +312,7 @@ fi
 
 case $TCZLOC in
     device)
-        p_informational "Packages will be placed in a folder cde"
+        p_informational "Packages will be placed in a directory cde"
         KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
 	;;
     initrd)
@@ -807,9 +807,9 @@ if [ "$COPY" = "c" ]; then
     if [ "$TRANSFER" = "t" ];then
         rsync --archive --checksum --delete output/* $DEVICE/
     else
-        echo "Copy the contents of ./output folder into a USB media/SD card"
+        echo "Copy the contents of ./output directory into a USB media/SD card"
     fi
 else
-    echo "Copy the contents of ./output folder into a USB media/SD card"
+    echo "Copy the contents of ./output directory into a USB media/SD card"
 fi
 echo -en "\\0033[0;39m"
