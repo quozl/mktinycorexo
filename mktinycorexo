@@ -591,6 +591,7 @@ p_end "ok"
 
 # associate with wireless on boot
 if [ ! -z "${ESSID}" ]; then
+    p_begin "Modifying initrd - wireless essid ..."
     for x in ${TREE_X86} ${TREE_ARM}; do
         if [ -d $x ]; then
             cat <<EOF >> ${x}/opt/bootlocal.sh
@@ -613,8 +614,7 @@ exit 0
 EOF
         fi
     done
-    # FIXME: on XO-1 delay until eth0 present
-    echo "Modifying initrd - wireless essid ... ok"
+    p_end "ok"
 fi
 
 # enable serial shell
