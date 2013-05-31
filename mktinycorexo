@@ -282,9 +282,7 @@ while [ ! -z "${1}" ]; do
             DEVICE=${1}
             shift
             if [ ! -e ${DEVICE} ]; then
-                echo -e "\\0033[1;31m"
-                echo "$0: no such device ${DEVICE}"
-                echo -en "\\0033[0;39m"
+                p_error "$0: no such device ${DEVICE}"
                 usage
                 exit 1
             fi
@@ -314,21 +312,15 @@ fi
 
 case $TCZLOC in
     device)
-        echo -e "\\0033[1;34m"
-        echo "Packages will be placed in a folder cde"
-        echo -en "\\0033[0;39m"
+        p_informational "Packages will be placed in a folder cde"
         KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
 	;;
     initrd)
-        echo -e "\\0033[1;34m"
-        echo "Packages will be placed in the initrd"
-        echo -en "\\0033[0;39m"
+        p_informational "Packages will be placed in the initrd"
         KERCMDLINE=""
 	;;
     *)
-	echo -e "\\0033[1;31m"
-	echo "$0: invalid value for --tczloc"
-	echo -en "\\0033[0;39m"
+	p_error "$0: invalid value for --tczloc"
 	usage
 	exit 1
 esac
@@ -342,22 +334,22 @@ mkdir -p cache/TCZs_x86/tce/optional
 mkdir -p cache/TCZs_arm/tce/optional
 
 if [ $CACHE = no ]; then
-    echo "Ignoring cache."
+    p_informational "Ignoring cache."
 fi
 
 if [ $C = yes -o $D = yes ]; then
     if [ $CACHE = no -o ! -f cache/${CORE_INITRD_X86}.gz ]; then
-        echo -n "Downloading ${CORE_INITRD_X86} ... "
+        p_begin "Downloading ${CORE_INITRD_X86} ... "
         wget -q -c -P cache/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/x86/release/distribution_files/${CORE_INITRD_X86}.gz
-        echo "ok"
+        p_end "ok"
     fi
 fi
 
 if [ $E = yes -o $F = yes ]; then
     if [ $CACHE = no -o ! -f cache/${CORE_INITRD_ARM}.gz ]; then
-        echo -n "Downloading ${CORE_INITRD_ARM}.gz ... "
+        p_begin "Downloading ${CORE_INITRD_ARM}.gz ... "
         wget -q -c -P cache/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
-        echo "ok"
+        p_end "ok"
     fi
 fi
 
@@ -539,7 +531,7 @@ for file in $(<cache/TCZs_arm/tce/onboot.lst); do
 done
 
 # unpack
-echo -n "Unpacking initrd ... "
+p_begin "Unpacking initrd ... "
 if [ $C = yes -o $D = yes ]; then
     mkdir -p ${TREE_X86}
     zcat cache/${CORE_INITRD_X86}.gz | \
@@ -550,10 +542,10 @@ if [ $E = yes -o $F = yes ]; then
     zcat cache/${CORE_INITRD_ARM}.gz | \
         (cd ${TREE_ARM} && cpio --extract --make-directories --quiet)
 fi
-echo "ok"
+p_end "ok"
 
 # modify version
-echo -n "Modifying initrd - version ... "
+p_begin "Modifying initrd - version ... "
 if [ -d ${TREE_X86} ]; then
     cat <<EOF >> ${TREE_X86}/etc/motd
 ${VERSION} quozl@laptop.org
@@ -566,10 +558,10 @@ ${VERSION} quozl@laptop.org
 
 EOF
 fi
-echo "ok"
+p_end "ok"
 
 # modify kernel
-echo -n "Modifying initrd - replace kernel ... "
+p_begin "Modifying initrd - replace kernel ... "
 if [ -d ${TREE_X86} ]; then
     rm -rf ${TREE_X86}/lib/modules/*-tinycore
     if [ $C = yes ]; then
@@ -590,16 +582,16 @@ if [ -d ${TREE_ARM} ]; then
     fi
     cp -pr cache/lib/firmware ${TREE_ARM}/lib/
 fi
-echo "ok"
+p_end "ok"
 
 # Add xo-specific scripts
-echo -n "Modifying initrd - add OLPC XO specific scripts ... "
+p_begin "Modifying initrd - add OLPC XO specific scripts ... "
 for x in ${TREE_X86} ${TREE_ARM}; do
     if [ -d $x ]; then
         cp xo-{backup,restore,server,revert} ${x}/usr/local/bin/
     fi
 done
-echo "ok"
+p_end "ok"
 
 # associate with wireless on boot
 if [ ! -z "${ESSID}" ]; then
@@ -675,7 +667,7 @@ if [ $INSPECT = yes ]; then
 fi
 
 # pack
-echo -n "Repacking initrd ... "
+p_begin "Repacking initrd ... "
 if [ -d ${TREE_X86} ]; then
     (cd ${TREE_X86} && (find | cpio -o -H newc --quiet | gzip -2 > ${INIT_X86}) )
     rm -rf ${TREE_X86}
@@ -684,10 +676,10 @@ if [ -d ${TREE_ARM} ]; then
     (cd ${TREE_ARM} && (find | cpio -o -H newc --quiet | gzip -2 > ${INIT_ARM}) )
     rm -rf ${TREE_ARM}
 fi
-echo "ok"
+p_end "ok"
 
 # make the output filesystem tree
-echo -n "Building output tree ... "
+p_begin "Building output tree ... "
 rm -rf output
 mkdir -p output
 mkdir -p output/boot
@@ -714,7 +706,7 @@ if [ $F = yes ]; then
     cp cache/boot/vmlinuz-${F_MODULES} output/boot/vmlinuz.4
     cp cache/boot/bootfw4.zip output/boot
 fi
-echo "ok"
+p_end "ok"
 
 if [ "$TCZLOC" = "device" ] ; then
     mkdir -p output/cde/optional
@@ -744,7 +736,7 @@ if [ "$TCZLOC" = "device" ] ; then
     done
 fi
 
-echo -n "Adding Open Firmware boot script ... "
+p_begin "Adding Open Firmware boot script ... "
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
 visible
@@ -791,15 +783,15 @@ EOF
 
 # cleanup
 rm -rf $(pwd)/tmp/
-echo "ok"
+p_end "ok"
 
 # copy to drive
 if [ ! -z ${DEVICE} ]; then
-    echo -n "Copying to drive ... "
+    p_begin "Copying to drive ... "
     mount ${DEVICE} /mnt
     rsync --archive --checksum --delete output/* /mnt/
     umount /mnt/
-    echo "ok"
+    p_end "ok"
     exit 0
 fi
 
