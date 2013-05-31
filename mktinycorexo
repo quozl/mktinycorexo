@@ -23,7 +23,7 @@
 set -e
 
 # version of this script
-VERSION=2013-05-29
+VERSION=2013-05-31
 
 
 # your local defaults
@@ -85,10 +85,10 @@ CORE_FALLBACK_ARM_ARCH=armv7
 
 # the build from which to obtain matching kernel, modules and firmware
 # (corresponds to an rsync module name on rsync://updates.laptop.org/)
-C_BUILD=build-13.2.0c_xo1-7 # not the final
-D_BUILD=build-13.2.0c_xo1.5-7 # not the final
-E_BUILD=build-13.2.0c_xo1.75-7 # not the final
-F_BUILD=build-13.2.0c_xo4-7 # not the final
+C_BUILD=build-13.2.0c_xo1-8 # not the final
+D_BUILD=build-13.2.0c_xo1.5-8 # not the final
+E_BUILD=build-13.2.0c_xo1.75-8 # not the final
+F_BUILD=build-13.2.0c_xo4-8 # not the final
 
 # kernel bundle
 C_KERNEL=runos0.zip
@@ -105,9 +105,9 @@ F_FIRMWARE=bootfw4.zip
 # the kernel version string in that build
 # see uname --release, or packages.txt in build output directory
 C_MODULES=3.3.8_xo1-20130329.1530.olpc.c0f817d # not the final
-D_MODULES=3.3.8_xo1.5-20130329.1538.olpc.c0f817d # not the final
+D_MODULES=3.3.8_xo1.5-20130525.1036.olpc.f12d9e6 # not the final
 E_MODULES=3.0.19_xo1.75-20130520.1930.olpc.0b6118b # not the final
-F_MODULES=3.5.7_xo4-20130520.1131.olpc.205f942 # not the final
+F_MODULES=3.5.7_xo4-20130528.1932.olpc.aeff3e2 # not the final
 
 
 # directories
