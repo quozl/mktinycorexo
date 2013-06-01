@@ -147,15 +147,16 @@ device         optional block device to create boot partition on.
 --no-cache     ignores the local cache previously built.
                (verifies cache against upstream)
 --essid id     associate to a wireless network during boot.
---no-xo-1      disable XO-1 support
---no-xo-1.5    disable XO-1.5 support
---no-xo-1.75   disable XO-1.75 support
---no-xo-4      disable XO-4 support
---tczloc x     where in the build to place the Tiny Core Linux packages
-               the options are "initrd" and "device"
-               the default is to include TC packages in the initrd
---inspect      pause to allow inspection of the initrd filesystem
---colour       print script outpout in colour
+--none         disable all XO support; use before one of the following;
+--add-xo-1     enable XO-1 support,
+--add-xo-1.5   enable XO-1.5 support,
+--add-xo-1.75  enable XO-1.75 support,
+--add-xo-4     enable XO-4 support.
+--tczloc x     where to place packages that are loaded after boot,
+               the options are "initrd" and "device",
+               the default is "initrd".
+--inspect      pause to allow inspection of the initrd filesystem.
+--colour       displays script messages in colour.
 --version      displays script version.
 --license      displays license.
 --help         displays this what you are looking at, mate.
