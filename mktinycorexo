@@ -49,8 +49,9 @@ COLOUR=no
 # option defaults
 
 # use a local cache of upstream files on your build system
-# (--no-cache turns this off and verifies cache against upstream)
-CACHE=yes
+# (--cache turns this on and does not verify cache against upstream
+# eliminating network use)
+CACHE=no
 
 # additional kernel options
 # see http://wiki.tinycorelinux.com/tiki-index.php?page=Boot+Options
@@ -144,8 +145,8 @@ $0 [options] [device]
 
 device         optional block device to create boot partition on.
                (otherwise you must copy output/* to a device yourself)
---no-cache     ignores the local cache previously built.
-               (verifies cache against upstream)
+--cache        use the local cache previously built without verifying
+               against upstream (eliminates network use)
 --essid id     associate to a wireless network during boot.
 --none         disable all XO support; use before one of the following;
 --add-xo-1     enable XO-1 support,
@@ -271,9 +272,9 @@ while [ ! -z "${1}" ]; do
             fi
             shift
             ;;
-        --no-cache)
+        --cache)
             shift
-            CACHE=no
+            CACHE=yes
             ;;
         --inspect)
             shift
