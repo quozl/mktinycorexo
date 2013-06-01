@@ -324,18 +324,52 @@ fi
 flags="-q -c -P cache/"
 base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
 if [ $C = yes -o $D = yes ]; then
-    if [ $CACHE = no -o ! -f cache/${CORE_INITRD_X86}.gz ]; then
+    if [ ! -f cache/${CORE_INITRD_X86}.gz ]; then
         p_begin "Downloading ${CORE_INITRD_X86} ... "
         wget $flags $base/x86/release/distribution_files/${CORE_INITRD_X86}.gz
         p_end "ok"
+    else 
+		if [ $CACHE = no ] ; then
+			p_begin "Checking if ${CORE_INITRD_X86} is up to date ... "
+			wget -q -c -P /tmp/ \
+				$base/x86/release/distribution_files/${CORE_INITRD_X86}.gz.md5.txt
+			if [ "$(cat /tmp/${CORE_INITRD_X86}.gz.md5.txt | cut -f 1 -d ' ')" \
+				!= "$(md5sum cache/${CORE_INITRD_X86}.gz | cut -f 1 -d ' ')" ] ; then
+				rm -f cache/${CORE_INITRD_X86}.gz
+				p_begin "Downloading ${CORE_INITRD_X86} ... "
+				wget $flags $base/x86/release/distribution_files/${CORE_INITRD_X86}.gz
+				p_end "ok"
+			else
+				rm -f /tmp/${CORE_INITRD_X86}.gz.md5.txt
+				p_end "ok"
+			fi
+			rm -f /tmp/${CORE_INITRD_X86}.gz.md5.txt
+		fi
     fi
 fi
 
 if [ $E = yes -o $F = yes ]; then
-    if [ $CACHE = no -o ! -f cache/${CORE_INITRD_ARM}.gz ]; then
+    if [ ! -f cache/${CORE_INITRD_ARM}.gz ]; then
         p_begin "Downloading ${CORE_INITRD_ARM}.gz ... "
         wget $flags $base/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
         p_end "ok"
+    else 
+		if [ $CACHE = no ] ; then
+			p_begin "Checking if ${CORE_INITRD_ARM} is up to date ... "
+			wget -q -c -P /tmp/ \
+				$base/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz.md5.txt
+			if [ "$(cat /tmp/${CORE_INITRD_ARM}.gz.md5.txt | cut -f 1 -d ' ')" \
+				!= "$(md5sum cache/${CORE_INITRD_ARM}.gz | cut -f 1 -d ' ')" ] ; then
+				rm -f cache/${CORE_INITRD_ARM}.gz
+				p_begin "Downloading ${CORE_INITRD_ARM} ... "
+				wget $flags $base/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
+				p_end "ok"
+			else
+				rm -f /tmp/${CORE_INITRD_ARM}.gz.md5.txt
+				p_end "ok"
+			fi
+			rm -f /tmp/${CORE_INITRD_ARM}.gz.md5.txt
+		fi
     fi
 fi
 
@@ -497,6 +531,7 @@ ncurses-utils.tcz
 rsync.tcz
 EOF
 
+p_begin "Checking x86 Tinycore Linux extensions ... "
 flags="-q -c -P cache/TCZs_x86/tce/optional/"
 base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
 for file in $(<cache/TCZs_x86/tce/onboot.lst); do
@@ -504,9 +539,23 @@ for file in $(<cache/TCZs_x86/tce/onboot.lst); do
         wget ${flags} ${base}/x86/tcz/$file
         wget ${flags} ${base}/x86/tcz/$file.md5.txt
         wget ${flags} ${base}/x86/tcz/$file.dep || true
+    else
+		if [ $CACHE = no ] ; then
+			wget -q -c -P /tmp/ ${base}/x86/tcz/$file.md5.txt
+			if [ "$(cat /tmp/$file.md5.txt)" != \
+			"$(cat cache/TCZs_x86/tce/optional/$file.md5.txt)" ] ; then
+				rm -f cache/TCZs_x86/tce/optional/"$file"*
+				wget ${flags} ${base}/x86/tcz/$file
+				wget ${flags} ${base}/x86/tcz/$file.md5.txt
+				wget ${flags} ${base}/x86/tcz/$file.dep || true
+			fi
+			rm -f /tmp/$file.md5.txt
+		fi
     fi
 done
+p_end "ok"
 
+p_begin "Checking armv6/armv7 Tinycore Linux extensions ... "
 flags="-q -c -P cache/TCZs_arm/tce/optional/"
 base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
 for file in $(<cache/TCZs_arm/tce/onboot.lst); do
@@ -517,8 +566,25 @@ for file in $(<cache/TCZs_arm/tce/onboot.lst); do
         wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
         wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
         wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || true
+    else
+		if [ $CACHE = no ] ; then
+			wget -q -c -P /tmp/ ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
+			wget -q -c -P /tmp/ ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
+			if [ "$(cat /tmp/$file.md5.txt)" != \
+				"$(cat cache/TCZs_arm/tce/optional/$file.md5.txt)" ] ; then
+				rm -f cache/TCZs_arm/tce/optional/"$file"*
+				wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file || \
+				wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file
+				wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
+				wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
+				wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
+				wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || true
+			fi
+			rm -f /tmp/$file.md5.txt
+		fi
     fi
 done
+p_end "ok"
 
 # unpack
 p_begin "Unpacking initrd ... "
