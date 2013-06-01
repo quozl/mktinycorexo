@@ -320,10 +320,12 @@ if [ $CACHE = no ]; then
     p_informational "Ignoring cache."
 fi
 
+flags="-q -c -P cache/"
+base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
 if [ $C = yes -o $D = yes ]; then
     if [ $CACHE = no -o ! -f cache/${CORE_INITRD_X86}.gz ]; then
         p_begin "Downloading ${CORE_INITRD_X86} ... "
-        wget -q -c -P cache/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/x86/release/distribution_files/${CORE_INITRD_X86}.gz
+        wget $flags $base/x86/release/distribution_files/${CORE_INITRD_X86}.gz
         p_end "ok"
     fi
 fi
@@ -331,7 +333,7 @@ fi
 if [ $E = yes -o $F = yes ]; then
     if [ $CACHE = no -o ! -f cache/${CORE_INITRD_ARM}.gz ]; then
         p_begin "Downloading ${CORE_INITRD_ARM}.gz ... "
-        wget -q -c -P cache/ http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
+        wget $flags $base/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
         p_end "ok"
     fi
 fi
