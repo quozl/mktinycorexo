@@ -164,41 +164,41 @@ EOF
 
 function p_error {
     if [ "$COLOUR" = "yes" ]; then
-	echo -e "\e[1;91m$1\e[0;39m"
+        echo -e "\e[1;91m$1\e[0;39m"
     else
-	echo "$1"
+        echo "$1"
     fi
 }
 
 function p_warning {
     if [ "$COLOUR" = "yes" ]; then
-	echo -e "\e[1;93m$1\e[0;39m"
+        echo -e "\e[1;93m$1\e[0;39m"
     else
-	echo "$1"
+        echo "$1"
     fi
 }
 
 function p_informational {
     if [ "$COLOUR" = "yes" ]; then
-	echo -e "\e[1;92m$1\e[0;39m"
+        echo -e "\e[1;92m$1\e[0;39m"
     else
-	echo "$1"
+        echo "$1"
     fi
 }
 
 function p_begin {
     if [ "$COLOUR" = "yes" ]; then
-	echo -ne "\e[1;96m$1\e[0;39m"
+        echo -ne "\e[1;96m$1\e[0;39m"
     else
-	echo -n "$1"
+        echo -n "$1"
     fi
 }
 
 function p_end {
     if [ "$COLOUR" = "yes" ]; then
-	echo -e "\e[1;92m$1\e[0;39m"
+        echo -e "\e[1;92m$1\e[0;39m"
     else
-	echo "$1"
+        echo "$1"
     fi
 }
 
@@ -248,9 +248,9 @@ while [ ! -z "${1}" ]; do
             shift
             ESSID=${1}
             if [ "${1}" = "" ] ; then
-				p_error "$0: invalid value for --essid"
-				usage
-				exit 1
+                p_error "$0: invalid value for --essid"
+                usage
+                exit 1
             fi
             shift
             ;;
@@ -258,15 +258,15 @@ while [ ! -z "${1}" ]; do
             shift
             TCZLOC=${1}
             if [ "${1}" = "initrd" ] ; then
-				p_informational "Packages will be placed in the initrd"
-				KERCMDLINE=""
-			elif [ "${1}" = "device" ] ; then
-				p_informational "Packages will be placed in a directory cde"
-				KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
+                p_informational "Packages will be placed in the initrd"
+                KERCMDLINE=""
+            elif [ "${1}" = "device" ] ; then
+                p_informational "Packages will be placed in a directory cde"
+                KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
             else
-				p_error "$0: invalid value for --tczloc"
-				usage
-				exit 1
+                p_error "$0: invalid value for --tczloc"
+                usage
+                exit 1
             fi
             shift
             ;;
@@ -279,8 +279,8 @@ while [ ! -z "${1}" ]; do
             INSPECT=yes
             ;;
         --colour)
-	    shift
-	    COLOUR=yes
+            shift
+            COLOUR=yes
             ;;
         --help)
             usage
@@ -348,7 +348,9 @@ function get_kernel {
             p_end "ok"
         fi
         p_begin "Downloading kernel ... "
-        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/boot/${KERNEL} cache/boot/
+        rsync --archive --checksum \
+            rsync://updates.laptop.org/${BUILD}/root/boot/${KERNEL} \
+            cache/boot/
         unzip -p cache/boot/${KERNEL} data.img > cache/boot/vmlinuz-${MODULES}
         p_end "ok"
     fi
@@ -359,7 +361,9 @@ function get_kernel {
             p_end "ok"
         fi
         p_begin "Downloading kernel modules ... "
-        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/modules/${MODULES} cache/lib/modules/
+        rsync --archive --checksum \
+            rsync://updates.laptop.org/${BUILD}/root/lib/modules/${MODULES} \
+            cache/lib/modules/
         p_end "ok"
     fi
     if [ $CACHE = no -o ! -e cache/boot/${FIRMWARE} ]; then
@@ -369,7 +373,9 @@ function get_kernel {
             p_end "ok"
         fi
         p_begin "Downloading firmware ... "
-        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/boot/${FIRMWARE} cache/boot/
+        rsync --archive --checksum \
+            rsync://updates.laptop.org/${BUILD}/root/boot/${FIRMWARE} \
+            cache/boot/
         p_end "ok"
     fi
 }
@@ -384,7 +390,9 @@ function get_wireless_firmware {
             p_end "ok"
         fi
         p_begin "Downloading wireless firmware ... "
-        rsync --archive --checksum rsync://updates.laptop.org/${BUILD}/root/lib/firmware/${1} cache/lib/firmware/${DN}
+        rsync --archive --checksum \
+            rsync://updates.laptop.org/${BUILD}/root/lib/firmware/${1} \
+            cache/lib/firmware/${DN}
         p_end "ok"
     fi
 }
@@ -602,10 +610,12 @@ fi
 
 # enable serial shell
 if [ -d ${TREE_X86} ]; then
-    echo "ttyS0::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttys0 vt100" >> ${TREE_X86}/etc/inittab
+    echo "ttyS0::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttys0 vt100" \
+        >> ${TREE_X86}/etc/inittab
 fi
 if [ -d ${TREE_ARM} ]; then
-    echo "ttyS2::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttys2 vt100" >> ${TREE_ARM}/etc/inittab
+    echo "ttyS2::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttys2 vt100" \
+        >> ${TREE_ARM}/etc/inittab
 fi
 
 # Add TC extension in initrd
@@ -648,11 +658,11 @@ fi
 # pack
 p_begin "Repacking initrd ... "
 if [ -d ${TREE_X86} ]; then
-    (cd ${TREE_X86} && (find | cpio -o -H newc --quiet | gzip -2 > ${INIT_X86}) )
+    (cd ${TREE_X86} && (find|cpio -o -H newc --quiet|gzip -2 >${INIT_X86}))
     rm -rf ${TREE_X86}
 fi
 if [ -d ${TREE_ARM} ]; then
-    (cd ${TREE_ARM} && (find | cpio -o -H newc --quiet | gzip -2 > ${INIT_ARM}) )
+    (cd ${TREE_ARM} && (find|cpio -o -H newc --quiet|gzip -2 >${INIT_ARM}))
     rm -rf ${TREE_ARM}
 fi
 p_end "ok"
