@@ -703,24 +703,24 @@ if [ "$TCZLOC" = "device" ] ; then
     cp -a cache/TCZs_x86/tce/optional/* output/cde/optional/
     cp -a cache/TCZs_arm/tce/onboot.lst output/cde/XO_arm.lst
     sed -i 's/\.tcz/_a\.tcz/g' output/cde/XO_arm.lst
-    for TCZ in `ls cache/TCZs_x86/tce/optional/*.tcz`; do
-        NAME=`basename $TCZ | sed 's/\.tcz//'`
+    for TCZ in $(ls cache/TCZs_x86/tce/optional/*.tcz); do
+        NAME=$(basename $TCZ | sed 's/\.tcz//')
         cp -a $TCZ output/cde/optional/${NAME}_a.tcz
     done
-    for TCZ in `ls cache/TCZs_x86/tce/optional/*.tcz.dep`; do
-        NAME=`basename $TCZ | sed 's/\.tcz\.dep//'`
+    for TCZ in $(ls cache/TCZs_x86/tce/optional/*.tcz.dep); do
+        NAME=$(basename $TCZ | sed 's/\.tcz\.dep//')
         cp -a $TCZ output/cde/optional/${NAME}_a.tcz.dep
     done
-    for TCZ in `ls cache/TCZs_x86/tce/optional/*.tcz.md5.txt`; do
-        NAME=`basename $TCZ | sed 's/\.tcz\.md5\.txt//'`
+    for TCZ in $(ls cache/TCZs_x86/tce/optional/*.tcz.md5.txt); do
+        NAME=$(basename $TCZ | sed 's/\.tcz\.md5\.txt//')
         cp -a $TCZ output/cde/optional/${NAME}_a.tcz.md5.txt
     done
     # Remove references to the kernel from TC extensions
-    for DEP in `ls output/cde/optional/*.tcz.dep`; do
+    for DEP in $(ls output/cde/optional/*.tcz.dep); do
         sed -i '/KERNEL/d' $DEP
     done
     # fix ARM tcz dependency names
-    for ADEP in `ls output/cde/optional/*_a.tcz.dep`; do
+    for ADEP in $(ls output/cde/optional/*_a.tcz.dep); do
         sed -i 's/\.tcz/_a\.tcz/g' $ADEP
     done
 fi
@@ -792,7 +792,7 @@ echo "...and then hit \"c\" > enter to continue"
 echo "or just hit enter to finish and transfer the files manually"
 read COPY
 if [ "$COPY" = "c" ]; then
-    DEVICE=`df | awk 'END { print $6 }'`
+    DEVICE=$(df | awk 'END { print $6 }')
     echo "The files will be transferred to $DEVICE."
     echo "if this is OK, hit \"t\" > enter to continue"
     echo "if not, hit enter to finish and transfer the files manually"
