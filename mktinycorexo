@@ -53,17 +53,6 @@ COLOUR=no
 # eliminating network use)
 CACHE=no
 
-# additional kernel options
-# see http://wiki.tinycorelinux.com/tiki-index.php?page=Boot+Options
-# fbcon=font:SUN12x22, the same console font as the OLPC builds
-# superuser, boots to a root shell
-# quiet, reduces verbosity during boot
-# multivt, start multiple consoles
-# nozswap, do not use zram swap
-# cde, use extensions from cde directory
-# lst=, name of file with extensions (tcz) to be loaded at boot time
-CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0 $KERCMDLINE"
-
 # support XO-1, XO-1.5, XO-1.75 and XO-4
 C=yes  # XO-1
 D=yes  # XO-1.5
@@ -307,6 +296,17 @@ while [ ! -z "${1}" ]; do
     esac
 
 done
+
+# additional kernel options
+# see http://wiki.tinycorelinux.com/tiki-index.php?page=Boot+Options
+# fbcon=font:SUN12x22, the same console font as the OLPC builds
+# superuser, boots to a root shell
+# quiet, reduces verbosity during boot
+# multivt, start multiple consoles
+# nozswap, do not use zram swap
+# cde, use extensions from cde directory
+# lst=, name of file with extensions (tcz) to be loaded at boot time
+CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0 $KERCMDLINE"
 
 license
 
