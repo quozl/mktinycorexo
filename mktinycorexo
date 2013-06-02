@@ -773,15 +773,15 @@ if [ "$TCZLOC" = "device" ] ; then
     cp -a cache/TCZs_x86/tce/optional/* output/cde/optional/
     cp -a cache/TCZs_arm/tce/onboot.lst output/cde/XO_arm.lst
     sed -i 's/\.tcz/_a\.tcz/g' output/cde/XO_arm.lst
-    for TCZ in $(ls cache/TCZs_x86/tce/optional/*.tcz); do
+    for TCZ in $(ls cache/TCZs_arm/tce/optional/*.tcz); do
         NAME=$(basename $TCZ | sed 's/\.tcz//')
         cp -a $TCZ output/cde/optional/${NAME}_a.tcz
     done
-    for TCZ in $(ls cache/TCZs_x86/tce/optional/*.tcz.dep); do
+    for TCZ in $(ls cache/TCZs_arm/tce/optional/*.tcz.dep); do
         NAME=$(basename $TCZ | sed 's/\.tcz\.dep//')
         cp -a $TCZ output/cde/optional/${NAME}_a.tcz.dep
     done
-    for TCZ in $(ls cache/TCZs_x86/tce/optional/*.tcz.md5.txt); do
+    for TCZ in $(ls cache/TCZs_arm/tce/optional/*.tcz.md5.txt); do
         NAME=$(basename $TCZ | sed 's/\.tcz\.md5\.txt//')
         cp -a $TCZ output/cde/optional/${NAME}_a.tcz.md5.txt
     done
