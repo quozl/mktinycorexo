@@ -466,8 +466,10 @@ if [ $F = yes ]; then
     get_wireless_firmware_8787
 fi
 
-# download tinycore extension
-cat <<EOF > cache/TCZs_x86/tce/onboot.lst
+
+if [ $C = yes -o $D = yes ]; then
+	# download tinycore extension
+	cat <<EOF > cache/TCZs_x86/tce/onboot.lst
 wifi.tcz
 iw.tcz
 wireless_tools.tcz
@@ -504,8 +506,10 @@ ncurses.tcz
 ncurses-utils.tcz
 rsync.tcz
 EOF
+fi
 
-cat <<EOF > cache/TCZs_arm/tce/onboot.lst
+if [ $E = yes -o $F = yes ]; then
+	cat <<EOF > cache/TCZs_arm/tce/onboot.lst
 wifi.tcz
 wireless_tools.tcz
 wpa_supplicant.tcz
@@ -531,11 +535,13 @@ ncurses.tcz
 ncurses-utils.tcz
 rsync.tcz
 EOF
+fi
 
-p_begin "Checking x86 Tinycore Linux extensions ... "
-flags="-q -c -P cache/TCZs_x86/tce/optional/"
-base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
-for file in $(<cache/TCZs_x86/tce/onboot.lst); do
+if [ $C = yes -o $D = yes ]; then
+	p_begin "Checking x86 Tinycore Linux extensions ... "
+	flags="-q -c -P cache/TCZs_x86/tce/optional/"
+	base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+	for file in $(<cache/TCZs_x86/tce/onboot.lst); do
     if [ ! -f cache/TCZs_x86/tce/optional/$file ] ; then
         wget ${flags} ${base}/x86/tcz/$file
         wget ${flags} ${base}/x86/tcz/$file.md5.txt
@@ -553,13 +559,15 @@ for file in $(<cache/TCZs_x86/tce/onboot.lst); do
 			rm -f /tmp/$file.md5.txt
 		fi
     fi
-done
-p_end "ok"
+	done
+	p_end "ok"
+fi
 
-p_begin "Checking armv6/armv7 Tinycore Linux extensions ... "
-flags="-q -c -P cache/TCZs_arm/tce/optional/"
-base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
-for file in $(<cache/TCZs_arm/tce/onboot.lst); do
+if [ $E = yes -o $F = yes ]; then
+	p_begin "Checking armv6/armv7 Tinycore Linux extensions ... "
+	flags="-q -c -P cache/TCZs_arm/tce/optional/"
+	base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+	for file in $(<cache/TCZs_arm/tce/onboot.lst); do
     if [ ! -f cache/TCZs_arm/tce/optional/$file ] ; then
         wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file || \
         wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file
@@ -584,8 +592,9 @@ for file in $(<cache/TCZs_arm/tce/onboot.lst); do
 			rm -f /tmp/$file.md5.txt
 		fi
     fi
-done
-p_end "ok"
+	done
+	p_end "ok"
+fi
 
 # unpack
 p_begin "Unpacking initrd ... "
