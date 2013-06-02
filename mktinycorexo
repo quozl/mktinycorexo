@@ -145,6 +145,7 @@ device         optional block device to create boot partition on.
 --tczloc x     where to place packages that are loaded after boot,
                the options are "initrd" and "device",
                the default is "initrd".
+--with-X       build also a GUI (currently only for XO-1 and XO-1.5)
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
 --version      displays script version.
@@ -265,6 +266,10 @@ while [ ! -z "${1}" ]; do
             shift
             CACHE=yes
             ;;
+        --with-X)
+            shift
+            GUI=yes
+            ;;            
         --inspect)
             shift
             INSPECT=yes
@@ -504,7 +509,52 @@ wget.tcz
 ncurses-common.tcz
 ncurses.tcz
 ncurses-utils.tcz
-rsync.tcz
+EOF
+fi
+
+if [ $GUI = yes ] ; then
+	cat <<EOF >> cache/TCZs_x86/tce/onboot.lst
+Xlibs.tcz
+Xorg-7.6-bin.tcz
+Xorg-7.6-lib.tcz
+Xorg-7.6.tcz
+Xorg-fonts.tcz
+expat2.tcz
+fontconfig.tcz
+graphics-libs-1.tcz
+liblzma.tcz
+libxml2.tcz
+mirrors.tcz
+xf86-video-geode.tcz
+xf86-video-chrome.tcz
+Xlibs.tcz
+Xprogs.tcz
+flwm_topside.tcz
+flwm.tcz
+wbar.tcz
+fltk-1.1.10.tcz
+bzip2-lib.tcz
+fox.tcz
+xfe-common.tcz
+xfe.tcz
+xfi.tcz
+xfv.tcz
+xfw.tcz
+openbox.tcz
+libglade.tcz
+libstartup-notification.tcz
+gtk2.tcz
+ttf-bitstream-vera.tcz
+libxcb.tcz
+libxcb-util.tcz
+atk.tcz
+cairo.tcz
+gdk-pixbuf2.tcz
+pango.tcz
+shared-mime-info.tcz
+glib2.tcz
+libffi.tcz
+pixman.tcz
 EOF
 fi
 
@@ -637,6 +687,16 @@ if [ -d ${TREE_X86} ]; then
         cp -pr cache/lib/modules/${D_MODULES} ${TREE_X86}/lib/modules/
     fi
     cp -pr cache/lib/firmware ${TREE_X86}/lib/
+    # Add xo-1.5 xorgconf 
+	if [ $GUI = yes ] ; then
+		cp -a xorg.conf-1.5 ${TREE_X86}/usr/share/
+		cat <<EOF >> ${TREE_X86}/opt/bootlocal.sh
+if [ "\$(cat /sys/class/dmi/id/board_version)" = "1.5" ] ; then
+	mkdir -p /etc/X11
+	cp -a /usr/share/xorg.conf-1.5 /etc/X11/xorg.conf
+fi
+EOF
+	fi
 fi
 if [ -d ${TREE_ARM} ]; then
     rm -rf ${TREE_ARM}/lib/modules/*
