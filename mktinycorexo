@@ -331,8 +331,7 @@ fi
 
 function get_initrd {
     flags="-q -c -P cache/"
-    base=$1
-    path=$2
+    path=$1/$2
     file=$3
     checksum=$file.md5.txt
 
