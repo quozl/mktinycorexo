@@ -36,9 +36,6 @@ DEVICE=
 # your wireless network
 ESSID=
 
-# where to put packages
-TCZLOC=initrd
-
 # whether to pause for inspection
 INSPECT=no
 
@@ -52,6 +49,9 @@ COLOUR=no
 # (--cache turns this on and does not verify cache against upstream
 # eliminating network use)
 CACHE=no
+
+# where to put packages
+TCZLOC=initrd
 
 # support XO-1, XO-1.5, XO-1.75 and XO-4
 C=yes  # XO-1
