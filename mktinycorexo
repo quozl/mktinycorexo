@@ -513,6 +513,13 @@ Xorg-7.6-bin.tcz
 Xorg-7.6-lib.tcz
 Xorg-7.6.tcz
 Xorg-fonts.tcz
+udev-lib.tcz
+udev-extra.tcz
+udev-keymap.tcz
+kmaps.tcz
+ethtool.tcz
+bash.tcz
+xo-pm.tcz
 expat2.tcz
 fontconfig.tcz
 graphics-libs-1.tcz
