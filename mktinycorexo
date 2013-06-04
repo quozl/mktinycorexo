@@ -590,22 +590,30 @@ fi
 if [ $C = yes -o $D = yes ]; then
     p_begin "Checking x86 extensions ... "
     base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+    XO_spefic=\
+http://ftp.cc.uoc.gr/mirrors/linux/TinyCore_for_XO1/TC-XO_sources
     cache=cache/TCZs_x86/tce/optional/
     flags="-q -c -P $cache"
     for file in $(<cache/TCZs_x86/tce/onboot.lst); do
         if [ ! -f cache/TCZs_x86/tce/optional/$file ] ; then
-            wget ${flags} ${base}/x86/tcz/$file
-            wget ${flags} ${base}/x86/tcz/$file.md5.txt
-            wget ${flags} ${base}/x86/tcz/$file.dep || true
+            wget ${flags} ${base}/x86/tcz/$file || \
+				wget ${flags} ${XO_spefic}/$file
+            wget ${flags} ${base}/x86/tcz/$file.md5.txt || \
+				wget ${flags} ${XO_spefic}/$file.md5.txt
+            wget ${flags} ${base}/x86/tcz/$file.dep || \
+				wget ${flags} ${XO_spefic}/$file.dep || true
         else
             if [ $CACHE = no ] ; then
                 rm -f $cache/$file.md5.txt
-                wget ${flags} ${base}/x86/tcz/$file.md5.txt
+                wget ${flags} ${base}/x86/tcz/$file.md5.txt || \
+					wget ${flags} ${XO_spefic}/$file.md5.txt
                 if [ "$(cat $cache/$file.md5.txt | cut -f 1 -d ' ')" \
                     != "$(md5sum $cache/$file | cut -f 1 -d ' ')" ] ; then
                     rm -f cache/TCZs_x86/tce/optional/$file{,.dep}
-                    wget ${flags} ${base}/x86/tcz/$file
-                    wget ${flags} ${base}/x86/tcz/$file.dep || true
+                    wget ${flags} ${base}/x86/tcz/$file || \
+						wget ${flags} ${XO_spefic}/$file
+                    wget ${flags} ${base}/x86/tcz/$file.dep \
+						wget ${flags} ${XO_spefic}/$file.dep || true
                 fi
             fi
         fi
