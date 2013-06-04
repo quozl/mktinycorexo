@@ -695,18 +695,8 @@ if [ -d ${TREE_X86} ]; then
         cp -pr cache/lib/modules/${D_MODULES} ${TREE_X86}/lib/modules/
     fi
     cp -pr cache/lib/firmware ${TREE_X86}/lib/
-    # Add xorg.conf for the XO-1.5
     if [ $GUI = yes ] ; then
-        cp -a xorg.conf-1.5 ${TREE_X86}/usr/share/
         cat <<EOF >> ${TREE_X86}/opt/bootlocal.sh
-
-# --with-X
-# Add xorg.conf if we run on an XO-1.5
-if [ "\$(cat /sys/class/dmi/id/board_version)" = "1.5" ] ; then
-    mkdir -p /etc/X11
-    cp -a /usr/share/xorg.conf-1.5 /etc/X11/xorg.conf
-fi
-
 # Increase Atrem font size
 sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
     /home/tc/.Xdefaults
@@ -716,9 +706,12 @@ sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
 EOF
 
         # Make tce "think" we run a TC kernel
-        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' ${TREE_X86}/usr/bin/tce-update
-        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' ${TREE_X86}/usr/bin/tce-load
-        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' ${TREE_X86}/usr/bin/tce-audit
+        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
+			${TREE_X86}/usr/bin/tce-update
+        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
+			${TREE_X86}/usr/bin/tce-load
+        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
+			${TREE_X86}/usr/bin/tce-audit
     fi
 fi
 if [ -d ${TREE_ARM} ]; then
