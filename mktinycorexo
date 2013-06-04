@@ -730,6 +730,8 @@ if [ -d ${TREE_ARM} ]; then
         cp -pr cache/lib/modules/${F_MODULES} ${TREE_ARM}/lib/modules/
     fi
     cp -pr cache/lib/firmware ${TREE_ARM}/lib/
+    # Make tce think we are armv6
+    sed -i 's/\"armv7\"/\"armv6\"/' ${TREE_ARM}/etc/init.d/tc-functions
 fi
 p_end "ok"
 
