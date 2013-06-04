@@ -586,8 +586,9 @@ fi
 
 if [ $C = yes -o $D = yes ]; then
     p_begin "Checking x86 Tinycore Linux extensions ... "
-    flags="-q -c -P cache/TCZs_x86/tce/optional/"
     base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+    cache=cache/TCZs_x86/tce/optional/
+    flags="-q -c -P $cache"
     for file in $(<cache/TCZs_x86/tce/onboot.lst); do
         if [ ! -f cache/TCZs_x86/tce/optional/$file ] ; then
             wget ${flags} ${base}/x86/tcz/$file
@@ -595,15 +596,14 @@ if [ $C = yes -o $D = yes ]; then
             wget ${flags} ${base}/x86/tcz/$file.dep || true
         else
             if [ $CACHE = no ] ; then
-                wget -q -c -P /tmp/ ${base}/x86/tcz/$file.md5.txt
-                if [ "$(cat /tmp/$file.md5.txt)" != \
-                    "$(cat cache/TCZs_x86/tce/optional/$file.md5.txt)" ] ; then
-                    rm -f cache/TCZs_x86/tce/optional/"$file"*
+                rm -f $cache/$file.md5.txt
+                wget ${flags} ${base}/x86/tcz/$file.md5.txt
+                if [ "$(cat $cache/$file.md5.txt | cut -f 1 -d ' ')" \
+                    != "$(md5sum $cache/$file | cut -f 1 -d ' ')" ] ; then
+                    rm -f cache/TCZs_x86/tce/optional/$file{,.dep}
                     wget ${flags} ${base}/x86/tcz/$file
-                    wget ${flags} ${base}/x86/tcz/$file.md5.txt
                     wget ${flags} ${base}/x86/tcz/$file.dep || true
                 fi
-                rm -f /tmp/$file.md5.txt
             fi
         fi
     done
