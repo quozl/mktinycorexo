@@ -327,56 +327,47 @@ if [ $CACHE = no ]; then
     p_informational "Ignoring cache."
 fi
 
-flags="-q -c -P cache/"
-base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
-if [ $C = yes -o $D = yes ]; then
-    if [ ! -f cache/${CORE_INITRD_X86}.gz ]; then
-        p_begin "Downloading ${CORE_INITRD_X86} ... "
-        wget $flags $base/x86/release/distribution_files/${CORE_INITRD_X86}.gz
+function get_initrd {
+    flags="-q -c -P cache/"
+    base=$1
+    path=$2
+    file=$3
+    checksum=$file.md5.txt
+
+    if [ ! -f cache/$file ]; then
+        p_begin "Downloading $file ... "
+        wget $flags $path/$file
         p_end "ok"
-    else
-        if [ $CACHE = no ] ; then
-            p_begin "Checking if ${CORE_INITRD_X86} is up to date ... "
-            wget -q -c -P /tmp/ \
-                $base/x86/release/distribution_files/${CORE_INITRD_X86}.gz.md5.txt
-            if [ "$(cat /tmp/${CORE_INITRD_X86}.gz.md5.txt | cut -f 1 -d ' ')" \
-                != "$(md5sum cache/${CORE_INITRD_X86}.gz | cut -f 1 -d ' ')" ] ; then
-                rm -f cache/${CORE_INITRD_X86}.gz
-                p_begin "Downloading ${CORE_INITRD_X86} ... "
-                wget $flags $base/x86/release/distribution_files/${CORE_INITRD_X86}.gz
-                p_end "ok"
-            else
-                rm -f /tmp/${CORE_INITRD_X86}.gz.md5.txt
-                p_end "ok"
-            fi
-            rm -f /tmp/${CORE_INITRD_X86}.gz.md5.txt
-        fi
+	return
     fi
+
+    if [ $CACHE = no ] ; then
+        p_begin "Checking if $file is up to date ... "
+        wget $flags $path/$checksum
+        if [ "$(cat cache/$checksum | cut -f 1 -d ' ')" \
+            != "$(md5sum cache/$file | cut -f 1 -d ' ')" ] ; then
+            p_end "no"
+            rm -f cache/$file
+            p_begin "Downloading $file ... "
+            wget $flags $path/$file
+        fi
+        p_end "ok"
+        rm -f cache/$checksum
+    fi
+}
+
+if [ $C = yes -o $D = yes ]; then
+    get_initrd \
+	http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
+	x86/release/distribution_files \
+	${CORE_INITRD_X86}.gz
 fi
 
 if [ $E = yes -o $F = yes ]; then
-    if [ ! -f cache/${CORE_INITRD_ARM}.gz ]; then
-        p_begin "Downloading ${CORE_INITRD_ARM}.gz ... "
-        wget $flags $base/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
-        p_end "ok"
-    else
-        if [ $CACHE = no ] ; then
-            p_begin "Checking if ${CORE_INITRD_ARM} is up to date ... "
-            wget -q -c -P /tmp/ \
-                $base/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz.md5.txt
-            if [ "$(cat /tmp/${CORE_INITRD_ARM}.gz.md5.txt | cut -f 1 -d ' ')" \
-                != "$(md5sum cache/${CORE_INITRD_ARM}.gz | cut -f 1 -d ' ')" ] ; then
-                rm -f cache/${CORE_INITRD_ARM}.gz
-                p_begin "Downloading ${CORE_INITRD_ARM} ... "
-                wget $flags $base/${CORE_INITRD_ARM_ARCH}/${CORE_INITRD_ARM}.gz
-                p_end "ok"
-            else
-                rm -f /tmp/${CORE_INITRD_ARM}.gz.md5.txt
-                p_end "ok"
-            fi
-            rm -f /tmp/${CORE_INITRD_ARM}.gz.md5.txt
-        fi
-    fi
+    get_initrd \
+	http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
+	${CORE_INITRD_ARM_ARCH} \
+	${CORE_INITRD_ARM}.gz
 fi
 
 function get_kernel {
