@@ -338,7 +338,7 @@ function get_initrd {
         p_begin "Downloading $file ... "
         wget $flags $path/$file
         p_end "ok"
-	return
+        return
     fi
 
     if [ $CACHE = no ] ; then
@@ -358,16 +358,16 @@ function get_initrd {
 
 if [ $C = yes -o $D = yes ]; then
     get_initrd \
-	http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
-	x86/release/distribution_files \
-	${CORE_INITRD_X86}.gz
+        http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
+        x86/release/distribution_files \
+        ${CORE_INITRD_X86}.gz
 fi
 
 if [ $E = yes -o $F = yes ]; then
     get_initrd \
-	http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
-	${CORE_INITRD_ARM_ARCH} \
-	${CORE_INITRD_ARM}.gz
+        http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
+        ${CORE_INITRD_ARM_ARCH} \
+        ${CORE_INITRD_ARM}.gz
 fi
 
 function get_kernel {
