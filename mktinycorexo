@@ -23,7 +23,7 @@
 set -e
 
 # version of this script
-VERSION=2013-06-01
+VERSION=2013-06-04
 
 
 # your local defaults
@@ -100,6 +100,17 @@ C_MODULES=3.3.8_xo1-20130329.1530.olpc.c0f817d # not the final
 D_MODULES=3.3.8_xo1.5-20130525.1036.olpc.f12d9e6 # not the final
 E_MODULES=3.0.19_xo1.75-20130520.1930.olpc.0b6118b # not the final
 F_MODULES=3.5.7_xo4-20130528.1932.olpc.aeff3e2 # not the final
+
+# additional kernel options
+# see http://wiki.tinycorelinux.com/tiki-index.php?page=Boot+Options
+# fbcon=font:SUN12x22, the same console font as the OLPC builds
+# superuser, boots to a root shell
+# quiet, reduces verbosity during boot
+# multivt, start multiple consoles
+# nozswap, do not use zram swap (because OLPC kernels do not have it)
+# cde, use extensions from cde directory
+# lst=, name of file with extensions (tcz) to be loaded at boot time
+CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0"
 
 
 # directories
@@ -253,10 +264,9 @@ while [ ! -z "${1}" ]; do
             TCZLOC=${1}
             if [ "${1}" = "initrd" ] ; then
                 p_informational "Packages will be placed in the initrd"
-                KERCMDLINE=""
             elif [ "${1}" = "device" ] ; then
                 p_informational "Packages will be placed in a directory cde"
-                KERCMDLINE="cde lst=XO_\${ARCHITECTURE}.lst"
+                CMDLINE="$CMDLINE cde lst=XO_\${ARCHITECTURE}.lst"
             else
                 p_error "$0: invalid value for --tczloc"
                 usage
@@ -303,17 +313,6 @@ while [ ! -z "${1}" ]; do
     esac
 
 done
-
-# additional kernel options
-# see http://wiki.tinycorelinux.com/tiki-index.php?page=Boot+Options
-# fbcon=font:SUN12x22, the same console font as the OLPC builds
-# superuser, boots to a root shell
-# quiet, reduces verbosity during boot
-# multivt, start multiple consoles
-# nozswap, do not use zram swap
-# cde, use extensions from cde directory
-# lst=, name of file with extensions (tcz) to be loaded at boot time
-CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0 $KERCMDLINE"
 
 license
 
