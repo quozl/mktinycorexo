@@ -59,6 +59,8 @@ D=yes  # XO-1.5
 E=yes  # XO-1.75
 F=yes  # XO-4
 
+# include a GUI
+GUI=no
 
 # upstream versions, tiny core linux
 
