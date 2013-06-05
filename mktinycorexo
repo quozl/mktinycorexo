@@ -115,12 +115,12 @@ CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt waitusb=5 nozswap console=\
 
 # directories
 
-# where to unpack the tinycore initrd tree
+# where to unpack the tiny core initrd tree
 # (must be absolute, is not kept)
 TREE_X86=$(pwd)/tmp/tree.x86.$$
 TREE_ARM=$(pwd)/tmp/tree.arm.$$
 
-# where to create the new tinycore initrd
+# where to create the new tiny core initrd
 # (must be absolute, is not kept)
 INIT_X86=$(pwd)/tmp/initrd.x86.gz.$$
 INIT_ARM=$(pwd)/tmp/initrd.arm.gz.$$
@@ -464,7 +464,7 @@ fi
 
 
 if [ $C = yes -o $D = yes ]; then
-    # download tinycore extension
+    # download tiny core extension
     cat <<EOF > cache/TCZs_x86/tce/onboot.lst
 wifi.tcz
 iw.tcz
@@ -585,7 +585,7 @@ EOF
 fi
 
 if [ $C = yes -o $D = yes ]; then
-    p_begin "Checking x86 Tinycore Linux extensions ... "
+    p_begin "Checking x86 extensions ... "
     base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
     cache=cache/TCZs_x86/tce/optional/
     flags="-q -c -P $cache"
@@ -611,7 +611,7 @@ if [ $C = yes -o $D = yes ]; then
 fi
 
 if [ $E = yes -o $F = yes ]; then
-    p_begin "Checking armv6/armv7 Tinycore Linux extensions ... "
+    p_begin "Checking armv6/armv7 extensions ... "
     flags="-q -c -P cache/TCZs_arm/tce/optional/"
     base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
     for file in $(<cache/TCZs_arm/tce/onboot.lst); do
