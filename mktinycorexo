@@ -767,6 +767,14 @@ if [ -d ${TREE_ARM} ]; then
     echo "ttyS2::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttyS2 vt100" \
         >> ${TREE_ARM}/etc/inittab
 fi
+cat <<EOF >> ${x}/opt/bootlocal.sh
+
+# tell serial shell user we are ready
+for x in ttyS0 ttyS2; do
+    grep -q console=\$x /proc/cmdline && \\
+        echo "press enter for shell" > /dev/\$x 2>/dev/null
+done
+EOF
 
 # Add TC extension in initrd
 if [ "$TCZLOC" = "initrd" ]; then
