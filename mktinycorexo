@@ -877,10 +877,6 @@ if [ "$TCZLOC" = "device" ] ; then
         for file in $(<cache/TCZs_x86/tce/onboot.lst); do
             cp -a cache/TCZs_x86/tce/optional/"$file"* output/cde/optional/
         done
-        # Remove references to the kernel from TC extensions
-        for DEP in $(ls output/cde/optional/*.tcz.dep); do
-            sed -i '/KERNEL/d' $DEP
-        done
     fi
     if [ $E = yes -o $F = yes ]; then
         cp -a cache/TCZs_arm/tce/onboot.lst output/cde/XO_arm.lst
@@ -899,6 +895,10 @@ if [ "$TCZLOC" = "device" ] ; then
             sed -i 's/\.tcz/_a\.tcz/g' $ADEP
         done
     fi
+    # Remove references to the kernel from TC extensions
+    for DEP in $(ls output/cde/optional/*.tcz.dep); do
+        sed -i '/KERNEL/d' $DEP
+    done
 fi
 
 p_begin "Adding Open Firmware boot script ... "
