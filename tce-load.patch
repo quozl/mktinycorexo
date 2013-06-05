@@ -1,0 +1,17 @@
+--- a/usr/bin/tce-load	2013-02-17 16:22:51.000000000 +0000
++++ b/usr/bin/tce-load	2013-06-05 20:20:50.188620218 +0000
+@@ -217,11 +217,12 @@
+ if [ ${TARGETAPP} == ${APPNAME} ]; then TARGETAPP=${TARGETAPP}.tcz; fi
+ APPNAME="${APPNAME/-KERNEL/-${KERNELVER}}"
+ TARGETAPP="${TARGETAPP/-KERNEL.tcz/-${KERNELVER}.tcz}"
+-
++aAPPNAME=${APPNAME}_a
+ # If load local or install then also check if already installed.
+ # Download only OK.
+ if [ "$INSTALL" ] && [ ! "$BOOTING" ]; then
+-	if [ -f /usr/local/tce.installed/"${APPNAME##/*/}" ]; then
++	if [ -f /usr/local/tce.installed/"${APPNAME##/*/}" \
++		-o -f /usr/local/tce.installed/"${aAPPNAME##/*/}" ]; then
+ 		echo "$APPNAME is already installed!"
+ 		continue
+ 	fi
