@@ -760,11 +760,11 @@ fi
 
 # enable serial shell
 if [ -d ${TREE_X86} ]; then
-    echo "ttyS0::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttys0 vt100" \
+    echo "ttyS0::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttyS0 vt100" \
         >> ${TREE_X86}/etc/inittab
 fi
 if [ -d ${TREE_ARM} ]; then
-    echo "ttyS2::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttys2 vt100" \
+    echo "ttyS2::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttyS2 vt100" \
         >> ${TREE_ARM}/etc/inittab
 fi
 
