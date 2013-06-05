@@ -608,6 +608,7 @@ if [ $C = yes -o $D = yes ]; then
                 wget ${flags} ${uoc}/$file.md5.txt
             wget ${flags} ${base}/x86/tcz/$file.dep || \
                 wget ${flags} ${uoc}/$file.dep || true
+            p_end "Got $file"
         else
             if [ $CACHE = no ] ; then
                 rm -f $cache/$file.md5.txt
@@ -620,6 +621,7 @@ if [ $C = yes -o $D = yes ]; then
                         wget ${flags} ${uoc}/$file
                     wget ${flags} ${base}/x86/tcz/$file.dep \
                         wget ${flags} ${uoc}/$file.dep || true
+                    p_end "Updated $file"
                 fi
             fi
         fi
@@ -639,6 +641,7 @@ if [ $E = yes -o $F = yes ]; then
                 wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
             wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
                 wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || true
+            p_end "Got $file"
         else
             if [ $CACHE = no ] ; then
                 wget -q -c -P /tmp/ ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
@@ -652,6 +655,7 @@ if [ $E = yes -o $F = yes ]; then
                         wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
                     wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
                         wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || true
+                    p_end "Updated $file"
                 fi
                 rm -f /tmp/$file.md5.txt
             fi
