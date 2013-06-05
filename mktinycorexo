@@ -125,6 +125,9 @@ TREE_ARM=$(pwd)/tmp/tree.arm.$$
 INIT_X86=$(pwd)/tmp/initrd.x86.gz.$$
 INIT_ARM=$(pwd)/tmp/initrd.arm.gz.$$
 
+# uppercase variables; considered to be global in scope
+# lowercase variables; considered to be local in scope
+
 if [ -r /etc/mktinycorexo.conf ]; then  . /etc/mktinycorexo.conf;  fi
 if [ -r ~/.mktinycorexo ];        then  . ~/.mktinycorexo;         fi
 if [ -r mktinycorexo.conf ];      then  . mktinycorexo.conf;       fi
