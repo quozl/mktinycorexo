@@ -744,19 +744,14 @@ if [ ! -z "${ESSID}" ]; then
 # --essid ${ESSID}
 /sbin/udevadm settle --timeout=5 >/dev/null 2>/dev/null
 
-grep -q wlan0 /proc/net/dev && \
-ifconfig wlan0 up >/dev/null && \
-iwlist wlan0 scan >/dev/null && \
-iwconfig wlan0 essid ${ESSID} && \
-/sbin/udhcpc -b -i wlan0 -x hostname:xo >/dev/null 2>/dev/null && \
-exit 0
-
-grep -q mlan0 /proc/net/dev && \
-ifconfig mlan0 up >/dev/null && \
-iwlist mlan0 scan >/dev/null && \
-iwconfig mlan0 essid ${ESSID} && \
-/sbin/udhcpc -b -i mlan0 -x hostname:xo >/dev/null 2>/dev/null && \
-exit 0
+for x in wlan0 mlan0; do
+    if [ -e /proc/sys/net/ipv4/conf/\$x ]; then
+        ifconfig \$x up >/dev/null && \\
+        iwlist \$x scan >/dev/null && \\
+        iwconfig \$x essid ${ESSID} && \\
+        /sbin/udhcpc -b -i \$x -x hostname:xo >/dev/null 2>/dev/null
+    fi
+done
 EOF
         fi
     done
