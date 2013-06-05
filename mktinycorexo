@@ -712,12 +712,10 @@ sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
 EOF
 
         # Make tce "think" we run a TC kernel
-        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
-			${TREE_X86}/usr/bin/tce-update
-        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
-			${TREE_X86}/usr/bin/tce-load
-        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
-			${TREE_X86}/usr/bin/tce-audit
+        for x in tce-update tce-load tce-audit; do
+            sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
+                ${TREE_X86}/usr/bin/$x
+        done
     fi
 fi
 if [ -d ${TREE_ARM} ]; then
