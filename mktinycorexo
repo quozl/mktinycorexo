@@ -283,6 +283,16 @@ while [ ! -z "${1}" ]; do
             ;;
         --with-X)
             shift
+            if [ $C != yes -a $D != yes ]; then
+                p_error "$0: A GUI is available ONLY for the XO-1 and XO-1.5"
+                exit 1
+            elif [ $E = yes -o $F = yes ]; then
+                echo -e "\\0033[1;35m"
+                echo "XO-1.75 and/or XO-4 can NOT be build with a GUI"
+                echo "Currently a GUI is available ONLY for x86 XOs"
+                sleep 5
+                echo -en "\\0033[0;39m"
+            fi
             GUI=yes
             ;;
         --inspect)
