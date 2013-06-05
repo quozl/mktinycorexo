@@ -23,7 +23,7 @@
 set -e
 
 # version of this script
-VERSION=2013-06-04
+VERSION=2013-06-05
 
 
 # your local defaults
