@@ -1,15 +1,16 @@
 #!/bin/sh
 # XO-1.5 XO-1.75 XO-4 revert filesystem to pristine state using a nearby server
 # http://wiki.laptop.org/go/Tiny_Core_Linux/Reversion
+# usage: xo-revert IP [ options for rsync ...]
 set -e
 IP=${1}
 shift
 mount /mnt/mmcblk0p1
 mount /mnt/mmcblk0p2
 echo "reverting boot partition"
-rsync --archive --compress --delete rsync://${IP}/p1 /mnt/mmcblk0p1
+rsync --archive --compress --delete $* rsync://${IP}/p1 /mnt/mmcblk0p1
 echo "reverting root partition"
-rsync --archive --compress --delete rsync://${IP}/p2 /mnt/mmcblk0p2
+rsync --archive --compress --delete $* rsync://${IP}/p2 /mnt/mmcblk0p2
 umount /mnt/mmcblk0p1
 umount /mnt/mmcblk0p2
 echo ok
