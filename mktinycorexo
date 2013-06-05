@@ -794,6 +794,10 @@ if [ "$TCZLOC" = "initrd" ]; then
                 ${TREE_X86}/tmp/builtin/optional/
         done
         cp -a cache/TCZs_x86/tce/onboot.lst ${TREE_X86}/tmp/builtin/
+        # Remove references to the kernel from TC extensions
+        for DEP in $(ls ${TREE_X86}/tmp/builtin/optional/*.tcz.dep); do
+            sed -i '/KERNEL/d' $DEP
+        done
     fi
     if [ -d ${TREE_ARM} ]; then
         mkdir -p ${TREE_ARM}/tmp/builtin/optional
@@ -807,10 +811,6 @@ if [ "$TCZLOC" = "initrd" ]; then
             sed -i '/KERNEL/d' $DEP
         done
     fi
-	# Remove references to the kernel from TC extensions
-	for DEP in $(ls ${TREE_X86}/tmp/builtin/optional/*.tcz.dep); do
-		sed -i '/KERNEL/d' $DEP
-	done
 fi
 
 # A chance to inspect change things
