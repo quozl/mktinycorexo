@@ -747,11 +747,8 @@ if [ -d ${TREE_ARM} ]; then
     sed -i 's/\"armv7\"/\"armv6\"/' ${TREE_ARM}/etc/init.d/tc-functions
     # Make TC see our '_a.tcz' extensions as the originals
     if [ "$TCZLOC" = "device" ]; then
-		BACK=$(pwd)
-		cd ${TREE_ARM}
-		patch -p1 < ${BACK}/tce-load.patch
-		cd ${BACK}
-	fi
+        patch -d ${TREE_ARM} -p1 < tce-load.patch
+    fi
 fi
 p_end "ok"
 
