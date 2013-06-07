@@ -283,17 +283,6 @@ while [ ! -z "${1}" ]; do
             ;;
         --with-X)
             shift
-            if [ $C != yes -a $D != yes ]; then
-                echo "You asked for a GUI, but not for XO-1 or XO-1.5 support."
-                p_error "$0: A GUI is available ONLY for the XO-1 and XO-1.5"
-                exit 1
-            elif [ $E = yes -o $F = yes ]; then
-                echo -e "\\0033[1;35m"
-                echo "You asked for a GUI, and for XO-1.75 and XO-4 support."
-                echo "On XO-1.75 and XO-4 this build will not show a GUI."
-                echo "On XO-1 and XO-1.5 this build will show a GUI."
-                sleep 5
-                echo -en "\\0033[0;39m"
             fi
             GUI=yes
             ;;
@@ -326,8 +315,24 @@ while [ ! -z "${1}" ]; do
                 exit 1
             fi
     esac
-
 done
+
+# check if a GUI should be build and warn on ARM machines
+if [ $GUI = yes ] ; then
+    if [ $C != yes -a $D != yes ]; then
+        p_error "You asked for a GUI, but not for XO-1 or XO-1.5 support."
+        p_error "$0: A GUI is available ONLY for the XO-1 and XO-1.5"
+        usage
+        exit 1
+    elif [ $E = yes -o $F = yes ]; then
+        echo -e "\\0033[1;35m"
+        echo "You asked for a GUI, and for XO-1.75 and XO-4 support."
+        echo "On XO-1.75 and XO-4 this build will not show a GUI."
+        echo "On XO-1 and XO-1.5 this build will show a GUI."
+        sleep 5
+        echo -en "\\0033[0;39m"
+    fi
+fi
 
 license
 
