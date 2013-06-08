@@ -106,11 +106,12 @@ F_MODULES=3.5.7_xo4-20130528.1932.olpc.aeff3e2 # not the final
 # fbcon=font:SUN12x22, the same console font as the OLPC builds
 # superuser, boots to a root shell
 # quiet, reduces verbosity during boot
+# showapps, show TCX extensions as they load
 # multivt, start multiple consoles
 # nozswap, do not use zram swap (because OLPC kernels do not have it)
 # cde, use extensions from cde directory
 # lst=, name of file with extensions (tcz) to be loaded at boot time
-CMDLINE="fbcon=font:SUN12x22 superuser quiet multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0"
+CMDLINE="fbcon=font:SUN12x22 superuser quiet showapps multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0"
 
 
 # directories
