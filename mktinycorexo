@@ -534,9 +534,14 @@ udev-lib.tcz
 udev-extra.tcz
 udev-keymap.tcz
 kmaps.tcz
+alsa.tcz
+libasound.tcz
+alsa-config.tcz
+depmod.tcz
+squashfs-tools-4.x.tcz
+flit_xo.tcz
 ethtool.tcz
 bash.tcz
-xo-pm.tcz
 expat2.tcz
 fontconfig.tcz
 graphics-libs-1.tcz
@@ -545,10 +550,7 @@ libxml2.tcz
 mirrors.tcz
 xf86-video-geode.tcz
 xf86-video-chrome.tcz
-Xlibs.tcz
 Xprogs.tcz
-flwm_topside.tcz
-flwm.tcz
 wbar.tcz
 fltk-1.1.10.tcz
 bzip2-lib.tcz
@@ -558,6 +560,7 @@ xfe.tcz
 xfi.tcz
 xfv.tcz
 xfw.tcz
+xo-pm.tcz
 openbox.tcz
 libglade.tcz
 libstartup-notification.tcz
@@ -574,11 +577,6 @@ glib2.tcz
 libffi.tcz
 pixman.tcz
 obconf.tcz
-alsa.tcz
-libasound.tcz
-alsa-config.tcz
-depmod.tcz
-alsamixergui.tcz
 EOF
 fi
 
