@@ -722,22 +722,6 @@ if [ -d ${TREE_X86} ]; then
         cp -pr cache/lib/modules/${D_MODULES} ${TREE_X86}/lib/modules/
     fi
     cp -pr cache/lib/firmware ${TREE_X86}/lib/
-    if [ $GUI = yes ] ; then
-        cat <<EOF >> ${TREE_X86}/opt/bootlocal.sh
-# Increase Atrem font size
-sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
-    /home/tc/.Xdefaults
-
-# start sound
-/usr/local/etc/init.d/alsasound start
-EOF
-
-        # Make tce "think" we run a TC kernel
-        for x in tce-update tce-load tce-audit; do
-            sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
-                ${TREE_X86}/usr/bin/$x
-        done
-    fi
 fi
 if [ -d ${TREE_ARM} ]; then
     rm -rf ${TREE_ARM}/lib/modules/*
@@ -840,6 +824,28 @@ if [ "$TCZLOC" = "initrd" ]; then
     fi
 fi
 
+# Modify x86 initrd if we build a GUI
+if [ $GUI = yes ] ; then
+    cat <<EOF >> ${TREE_X86}/opt/bootlocal.sh
+# Increase Atrem font size
+sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
+    /home/tc/.Xdefaults
+
+# start sound
+/usr/local/etc/init.d/alsasound start
+
+# Fix game keys
+while [ ! -f /home/tc/.xsession ]; do sleep 3 ; done
+echo "xmodmap /home/tc/.Xmodmap" >> /home/tc/.xsession
+EOF
+
+    # Make tce "think" we run a TC kernel
+    for x in tce-update tce-load tce-audit; do
+        sed -i 's/\$(uname \-r)/3\.0\.21\-tinycore/' \
+            ${TREE_X86}/usr/bin/$x
+    done
+fi
+    
 # A chance to inspect change things
 if [ $INSPECT = yes ]; then
     echo -e "\\0033[1;34m"
