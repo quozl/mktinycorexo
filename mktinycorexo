@@ -560,8 +560,6 @@ flit_xo.tcz
 ethtool.tcz
 bash.tcz
 expat2.tcz
-fontconfig.tcz
-graphics-libs-1.tcz
 liblzma.tcz
 libxml2.tcz
 mirrors.tcz
@@ -569,6 +567,10 @@ xf86-video-geode.tcz
 xf86-video-chrome.tcz
 Xprogs.tcz
 wbar.tcz
+flwm_topside_xo.tcz
+fontconfig.tcz
+pixman.tcz
+graphics-libs-1.tcz
 fltk-1.1.10.tcz
 bzip2-lib.tcz
 fox.tcz
@@ -578,22 +580,6 @@ xfi.tcz
 xfv.tcz
 xfw.tcz
 xo-pm.tcz
-openbox.tcz
-libglade.tcz
-libstartup-notification.tcz
-gtk2.tcz
-ttf-bitstream-vera.tcz
-libxcb.tcz
-libxcb-util.tcz
-atk.tcz
-cairo.tcz
-gdk-pixbuf2.tcz
-pango.tcz
-shared-mime-info.tcz
-glib2.tcz
-libffi.tcz
-pixman.tcz
-obconf.tcz
 EOF
 fi
 
