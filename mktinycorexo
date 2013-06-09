@@ -162,6 +162,9 @@ device         optional block device to create boot partition on.
 --tczloc x     where to place packages that are loaded after boot,
                the options are "initrd" and "device",
                the default is "initrd".
+--timezone     add timezone information in the format "GMT+H", "GMT-H";
+               subtract if you are East of the prime meridian
+               (Greenwich, UK), add if you are West of it.
 --with-X       build also a GUI (currently only for XO-1 and XO-1.5)
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
@@ -286,6 +289,19 @@ while [ ! -z "${1}" ]; do
             shift
             fi
             GUI=yes
+            ;;
+        --timezone)
+            shift
+            TZ=${1}
+            FORMAT=$(echo $TZ | grep GMT[-+][0-9])
+            if [ "${1}" = "" -o "$FORMAT" = "" ] ; then
+                p_error "$0: invalid value for --timezone"
+                usage
+                exit 1
+            else
+                CMDLINE="$CMDLINE tz=$TZ"
+            fi
+            shift
             ;;
         --inspect)
             shift
