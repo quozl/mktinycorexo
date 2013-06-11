@@ -964,6 +964,17 @@ visible
    endcase
 ;
 
+[ifndef] bundle-suffix$
+: bundle-suffix$
+   " model" " /" find-package drop get-package-property 2drop c@
+   case
+      [char] C  of  " 0" exit  endof
+      [char] D  of  " 1" exit  endof
+      " 2" exit
+   endcase
+;
+[then]
+
 \ set macros
 bundle-suffix$     " MACHINE"      \$set-macro
 bundle-suffix$ b>a " ARCHITECTURE" \$set-macro
