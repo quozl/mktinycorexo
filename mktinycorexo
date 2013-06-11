@@ -287,7 +287,6 @@ while [ ! -z "${1}" ]; do
             ;;
         --with-X)
             shift
-            fi
             GUI=yes
             ;;
         --timezone)
