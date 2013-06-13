@@ -165,7 +165,7 @@ device         optional block device to create boot partition on.
 --timezone     add timezone information in the format "GMT+H", "GMT-H";
                subtract if you are East of the prime meridian
                (Greenwich, UK), add if you are West of it.
---with-X       build also a GUI (currently only for XO-1 and XO-1.5)
+--with-X       build also a GUI (login as user "tc" to activate)
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
 --version      displays script version.
@@ -333,23 +333,6 @@ while [ ! -z "${1}" ]; do
     esac
 done
 
-# check if a GUI should be build and warn on ARM machines
-if [ $GUI = yes ] ; then
-    if [ $C != yes -a $D != yes ]; then
-        p_error "You asked for a GUI, but not for XO-1 or XO-1.5 support."
-        p_error "$0: A GUI is available ONLY for the XO-1 and XO-1.5"
-        usage
-        exit 1
-    elif [ $E = yes -o $F = yes ]; then
-        echo -e "\\0033[1;35m"
-        echo "You asked for a GUI, and for XO-1.75 and XO-4 support."
-        echo "On XO-1.75 and XO-4 this build will not show a GUI."
-        echo "On XO-1 and XO-1.5 this build will show a GUI."
-        sleep 5
-        echo -en "\\0033[0;39m"
-    fi
-fi
-
 license
 
 # build the cache
@@ -498,7 +481,6 @@ if [ $F = yes ]; then
     get_wireless_firmware_8787
 fi
 
-
 if [ $C = yes -o $D = yes ]; then
     # download tiny core extension
     cat <<EOF > cache/TCZs_x86/tce/onboot.lst
@@ -537,10 +519,8 @@ ncurses-common.tcz
 ncurses.tcz
 ncurses-utils.tcz
 EOF
-fi
-
-if [ $GUI = yes ] ; then
-    cat <<EOF >> cache/TCZs_x86/tce/onboot.lst
+    if [ $GUI = yes ] ; then
+        cat <<EOF >> cache/TCZs_x86/tce/onboot.lst
 Xlibs.tcz
 Xorg-7.6-bin.tcz
 Xorg-7.6-lib.tcz
@@ -580,6 +560,7 @@ xfv.tcz
 xfw.tcz
 xo-pm.tcz
 EOF
+    fi
 fi
 
 if [ $E = yes -o $F = yes ]; then
@@ -609,6 +590,43 @@ ncurses.tcz
 ncurses-utils.tcz
 rsync.tcz
 EOF
+    if [ $GUI = yes ] ; then
+        cat <<EOF >> cache/TCZs_arm/tce/onboot.lst
+expat2.tcz
+pixman.tcz
+Xorg-7.6-lib.tcz
+Xorg-7.6.tcz
+alsa.tcz
+alsa-utils.tcz
+alsa-plugins.tcz
+libasound.tcz
+libasound-bin.tcz
+bzip2-lib.tcz
+bzip2.tcz
+mirrors.tcz
+fontconfig.tcz
+popt.tcz
+Xlibs.tcz
+Xprogs.tcz
+fltk-1.1.10.tcz
+freetype.tcz
+imlib2.tcz
+libjpeg.tcz
+libpng.tcz
+gnutls.tcz
+pcre.tcz
+imlib2-tools.tcz
+squashfs-tools-4.x.tcz
+libgcrypt.tcz
+nettle.tcz
+p11-kit.tcz
+libtasn1.tcz
+libgpg-error.tcz
+wbar.tcz
+flwm_topside.tcz
+EOF
+    fi
+
 fi
 
 if [ $C = yes -o $D = yes ]; then
@@ -650,28 +668,36 @@ if [ $E = yes -o $F = yes ]; then
     p_begin "Checking armv6/armv7 extensions ... "
     flags="-q -c -P cache/TCZs_arm/tce/optional/"
     base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+    uoc=http://ftp.cc.uoc.gr/mirrors/linux/TinyCore_for_XO1/TC-XO_sources
     for file in $(<cache/TCZs_arm/tce/onboot.lst); do
         if [ ! -f cache/TCZs_arm/tce/optional/$file ] ; then
             wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file || \
-                wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file
+                wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file || \
+                wget ${flags} ${uoc}/$file
             wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
-                wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
+                wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt || \
+                wget ${flags} ${uoc}/$file.md5.txt
             wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
-                wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || true
+                wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || \
+                wget ${flags} ${uoc}/$file.dep || true
             p_end "got $file"
         else
             if [ $CACHE = no ] ; then
                 wget -q -c -P /tmp/ ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
-                    wget -q -c -P /tmp/ ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
+                    wget -q -c -P /tmp/ ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt || \
+                    wget -q -c -P /tmp/ ${uoc}/$file.md5.txt
                 if [ "$(cat /tmp/$file.md5.txt)" != \
                     "$(cat cache/TCZs_arm/tce/optional/$file.md5.txt)" ] ; then
                     rm -f cache/TCZs_arm/tce/optional/"$file"*
                     wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file || \
-                        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file
+                        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file || \
+                        wget ${flags} ${uoc}/$file
                     wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
-                        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt
+                        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt || \
+                        wget ${flags} ${uoc}/$file.md5.txt
                     wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.dep || \
-                        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || true
+                        wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.dep || \
+                        wget ${flags} ${uoc}/$file.dep || true
                     p_end "updated $file"
                 fi
                 rm -f /tmp/$file.md5.txt
@@ -743,6 +769,11 @@ if [ -d ${TREE_ARM} ]; then
     if [ "$TCZLOC" = "device" ]; then
         patch -d ${TREE_ARM} -p1 < tce-load.patch
     fi
+    # Make tce "think" we run a TC kernel
+    for x in tce-update tce-load tce-audit; do
+        sed -i 's/\$(uname \-r)/3\.6\.11\-piCore/' \
+            ${TREE_ARM}/usr/bin/$x
+    done
 fi
 p_end "ok"
 
@@ -829,9 +860,11 @@ if [ "$TCZLOC" = "initrd" ]; then
     fi
 fi
 
-# Modify x86 initrd if we build a GUI
+# Further modify initrd if we build a GUI
 if [ $GUI = yes ] ; then
-    cat <<EOF >> ${TREE_X86}/opt/bootlocal.sh
+    for x in ${TREE_X86} ${TREE_ARM}; do
+        if [ -d $x ]; then
+            cat <<EOF >> ${x}/opt/bootlocal.sh
 # Increase Atrem font size
 sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
     /home/tc/.Xdefaults
@@ -843,6 +876,8 @@ sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
 while [ ! -f /home/tc/.xsession ]; do sleep 3 ; done
 echo "xmodmap /home/tc/.Xmodmap" >> /home/tc/.xsession
 EOF
+        fi
+    done
 fi
     
 # A chance to inspect change things
