@@ -165,7 +165,9 @@ device         optional block device to create boot partition on.
 --timezone     add timezone information in the format "GMT+H", "GMT-H";
                subtract if you are East of the prime meridian
                (Greenwich, UK), add if you are West of it.
---with-X       build also a GUI (login as user "tc" to activate)
+--with-X       build also a GUI (login as user "tc" to activate);
+               TCZ extensions MUST be included in the initrd
+               for GUI to work properly on the XO-1.75 and the XO-4.
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
 --version      displays script version.
@@ -332,6 +334,18 @@ while [ ! -z "${1}" ]; do
             fi
     esac
 done
+
+# Renaming the TCZs will prohibit install script to run properly
+# Do not build GUI for ARM-XOs if we try to save the TCZs in the boot device 
+if [ "${TCZLOC}" = "device" -a "${GUI}" = "yes" ] ; then
+    if [ $E = yes -o $F = yes ]; then
+        p_error "To build a GUI for the XO-1.75 or the XO-4"
+        p_error "you MUST include the TCZs in the initrd"
+        sleep 5 
+        usage
+        exit 1
+    fi
+fi
 
 license
 
@@ -623,7 +637,11 @@ p11-kit.tcz
 libtasn1.tcz
 libgpg-error.tcz
 wbar.tcz
-flwm_topside.tcz
+flwm_topside_xoa.tcz
+flit_xoa.tcz
+bash.tcz
+xo-pm-a.tcz
+mirrors.tcz
 EOF
     fi
 
