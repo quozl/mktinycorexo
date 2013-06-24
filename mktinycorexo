@@ -922,14 +922,14 @@ if [ $GUI = yes ] ; then
             cat <<EOF >> ${x}/opt/bootlocal.sh
 # Increase Atrem font size
 sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
-    /home/tc/.Xdefaults
+    /home/\$USER/.Xdefaults
 
 # start sound
 /usr/local/etc/init.d/alsasound start
 
 # Fix game keys
-while [ ! -f /home/tc/.xsession ]; do sleep 3 ; done
-echo "xmodmap /home/tc/.Xmodmap" >> /home/tc/.xsession
+while [ ! -f /home/\$USER/.xsession ]; do sleep 3 ; done
+echo "xmodmap /home/\$USER/.Xmodmap" >> /home/\$USER/.xsession
 EOF
         fi
     done
