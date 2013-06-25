@@ -3,9 +3,8 @@ Announcing a build of Tiny Core Linux for the OLPC XO.
 This is useful for testing, diagnosis, and recovery of filesystems on
 an unlocked XO.
 
-My thanks to George Hunt and Yioryos Asprobounitis for all their hard
-work toward this.  All I did was pull the strings, I reckon.
-
+My thanks to George Hunt, Yioryos Asprobounitis and Jerry Vonau for
+the contributions.
 
 Features:
 
@@ -14,7 +13,7 @@ Features:
 - configured for a single root shell in text mode, with alternate
   consoles available for login,
 
-- based on Core 4.7.6, uses the OLPC kernel from 13.2.0-7, and
+- based on Core 4.7.7, uses the OLPC kernel from 13.2.0-8, and
   includes latest signed Open Firmware versions for automatic upgrade,
 
 - includes wireless firmware for each laptop, and wireless
@@ -24,8 +23,7 @@ Features:
 Downloads:
 
 http://dev.laptop.org/~quozl/tinycore/
-
-c5370f69f3fc18546c480774941d6c11  core-4.7.6-xo-2013-05-24.zip
+3ad809ddb06fefa75b7c3c8a28520d11  core-4.7.7-xo-2013-06-25.zip
 
 
 Instructions:
@@ -37,11 +35,28 @@ b.  ensure the XO is unlocked,
 c.  boot from the media.
 
 
+Changes since core-4.7.6-xo-2013-05-24.zip:
+
+- add rsync,
+
+- add xo-backup, xo-restore, xo-server, xo-revert tools,
+
+- show extension names as they are loaded,
+
+- fix missing serial port consoles, and add a prompt,
+
+- support older firmware versions that lack bundle-suffix$ ,
+
+- list contributors.
+
+
 Known bugs:
 
-- serial console shell might not start,
+- spurious messages from tar before the date is set,
 
-- associates automatically with a network named "qz".
+- spurious messages from udevadm, an upstream problem, missing --quiet,
+
+- associates automatically with a network named "qz", a test escape,
 
 
 References:
