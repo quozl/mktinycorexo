@@ -42,7 +42,7 @@ INSPECT=no
 # whether to use colour in output
 COLOUR=no
 
-# setup xo-custom
+# setup customisation stick
 CUSTOM=
 
 # option defaults
@@ -309,7 +309,7 @@ while [ ! -z "${1}" ]; do
             ;;
         --xo-custom)
             shift
-            CMDLINE="$CMDLINE xo-custom" 
+            CMDLINE="$CMDLINE xo-custom"
             ;;
         --inspect)
             shift
@@ -849,14 +849,12 @@ for x in ${TREE_X86} ${TREE_ARM}; do
     cat <<EOF >> ${x}/opt/bootlocal.sh
 # tell serial shell user we are ready
 for x in ttyS0 ttyS2; do
-    grep -q console=\$x /proc/cmdline && \\
+    grep -qw console=\$x /proc/cmdline && \\
         echo "press enter for shell" > /dev/\$x 2>/dev/null
 done
-custom=\$(cat /proc/cmdline | grep -e xo-custom)
 
-if [ "x\$custom" != "x" ]; then
-    /usr/local/bin/xo-custom
-fi
+grep -qw xo-custom /proc/cmdline && /usr/local/bin/xo-custom
+
 EOF
 
     # make /dev bindable
