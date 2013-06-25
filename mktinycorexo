@@ -27,7 +27,8 @@
 set -e
 
 # version of this script
-VERSION=2013-06-11
+VERSION=2013-06-25
+
 # authors
 AUTHORS="quozl@laptop.org mavrothal@yahoo.com jerry@laptop.org.au"
 
