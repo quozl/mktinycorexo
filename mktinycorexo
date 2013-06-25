@@ -42,6 +42,8 @@ INSPECT=no
 # whether to use colour in output
 COLOUR=no
 
+# setup xo-custom
+CUSTOM=
 
 # option defaults
 
@@ -168,6 +170,7 @@ device         optional block device to create boot partition on.
 --with-X       build also a GUI (login as user "tc" to activate);
                TCZ extensions MUST be included in the initrd
                for GUI to work properly on the XO-1.75 and the XO-4.
+--xo-custom    add xo-custom boot directive
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
 --version      displays script version.
@@ -303,6 +306,10 @@ while [ ! -z "${1}" ]; do
                 CMDLINE="$CMDLINE tz=$TZ"
             fi
             shift
+            ;;
+        --xo-custom)
+            shift
+            CMDLINE="$CMDLINE xo-custom" 
             ;;
         --inspect)
             shift
@@ -743,13 +750,13 @@ p_end "ok"
 p_begin "Modifying initrd - version ... "
 if [ -d ${TREE_X86} ]; then
     cat <<EOF >> ${TREE_X86}/etc/motd
-${VERSION} quozl@laptop.org
+${VERSION} quozl@laptop.org jerry@laptop.org.au
 
 EOF
 fi
 if [ -d ${TREE_ARM} ]; then
     cat <<EOF >> ${TREE_ARM}/etc/motd
-${VERSION} quozl@laptop.org
+${VERSION} quozl@laptop.org jerry@laptop.org.au
 
 EOF
 fi
@@ -799,7 +806,7 @@ p_end "ok"
 p_begin "Modifying initrd - add OLPC XO specific scripts ... "
 for x in ${TREE_X86} ${TREE_ARM}; do
     if [ -d $x ]; then
-        cp xo-{backup,restore,server,revert} ${x}/usr/local/bin/
+        cp xo-{backup,restore,server,revert,custom} ${x}/usr/local/bin/
     fi
 done
 p_end "ok"
@@ -813,7 +820,6 @@ if [ ! -z "${ESSID}" ]; then
 
 # --essid ${ESSID}
 /sbin/udevadm settle --timeout=5 >/dev/null 2>/dev/null
-
 for x in wlan0 mlan0; do
     if [ -e /proc/sys/net/ipv4/conf/\$x ]; then
         ifconfig \$x up >/dev/null && \\
@@ -846,6 +852,39 @@ for x in ttyS0 ttyS2; do
     grep -q console=\$x /proc/cmdline && \\
         echo "press enter for shell" > /dev/\$x 2>/dev/null
 done
+custom=\$(cat /proc/cmdline | grep -e xo-custom)
+
+if [ "x\$custom" != "x" ]; then
+    /usr/local/bin/xo-custom
+fi
+EOF
+
+    # make /dev bindable
+    cat << EOF > ${x}/etc/init.d/rcS
+#!/bin/sh
+# RC Script for Tiny Core Linux
+# (c) Robert Shingledecker 2004-2012
+# (c) Jerry Vonau	2013
+
+# Mount /proc.
+[ -f /proc/cmdline ] || /bin/mount /proc
+
+# Remount rootfs rw.
+mount -o remount,rw /
+
+# make /dev bindable JV
+mount -t tmpfs tmpfs /dev
+mknod /dev/null c 1 3
+mknod /dev/ptmx c 5 2
+mknod /dev/console c  5 1
+mknod /dev/kmsg c 1 11
+mkdir /dev/pts
+mkdir /dev/shm
+
+# Mount system devices from /etc/fstab.
+mount -a
+
+/etc/init.d/tc-config
 EOF
     fi
 done
