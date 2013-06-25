@@ -4,11 +4,12 @@ from upstream distribution components:
 1.  select a USB drive that has nothing on it that is wanted,
 
 2.  select a system for building with; last tested on an XO-4 running
-OLPC OS 13.1.0, or use some other Linux system, (the script obtains
-the kernel from the internet if it is not available on your system),
-then plug the USB drive into it,
+    OLPC OS 13.2.0, or use some other Linux system, (the script
+    obtains the kernel from the internet if it is not available on
+    your system), then plug the USB drive into it,
 
-3.  identify the USB drive from /proc/partitions, such as /dev/sdc1,
+3.  identify the USB drive from /proc/partitions, such as /dev/sda1,
+    and unmount it if it was automatically mounted,
 
 4.  ensure you have an internet connection,
 
@@ -19,15 +20,15 @@ then plug the USB drive into it,
 
 6.  as root run the script:
 
-    sudo mktinycorexo /dev/sdc1
+    sudo mktinycorexo /dev/sda1
 
-... where /dev/sdc1 is the answer you obtained from step 3 above,
-(take care, because any directory called boot on this device will be
-changed),
+    ... where /dev/sda1 is the answer you obtained from step 3 above,
+    (take care, because any directory called boot on this device will
+    be changed),
 
 7.  wait for completion,
 
 8.  boot from the USB drive,
 
 9.  if disk space is required, you can remove the cache/ directory, as
-it contains downloads only.
+    it contains downloads only.
