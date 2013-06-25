@@ -3,9 +3,6 @@
 # Tiny Core Linux target system builder for OLPC XO laptops
 # Copyright (C) 2011  James Cameron (quozl@laptop.org)
 #
-# Modified by mavrothal@yahoo.com for TC 4.x, OLPC 13.2.0 kernels
-# and all 4 XO models. May 2013
-#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -20,10 +17,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+#
+# Modified by mavrothal@yahoo.com for TC 4.x, OLPC 13.2.0 kernels
+# and all 4 XO models.  May 2013
+#
+# Modified by jerry@laptop.org.au to add customization stick mode.
+# June 2013.
+#
 set -e
 
 # version of this script
 VERSION=2013-06-11
+# authors
+AUTHORS="quozl@laptop.org mavrothal@yahoo.com jerry@laptop.org.au"
 
 
 # your local defaults
@@ -750,13 +756,13 @@ p_end "ok"
 p_begin "Modifying initrd - version ... "
 if [ -d ${TREE_X86} ]; then
     cat <<EOF >> ${TREE_X86}/etc/motd
-${VERSION} quozl@laptop.org jerry@laptop.org.au
+${VERSION} ${AUTHORS}
 
 EOF
 fi
 if [ -d ${TREE_ARM} ]; then
     cat <<EOF >> ${TREE_ARM}/etc/motd
-${VERSION} quozl@laptop.org jerry@laptop.org.au
+${VERSION} ${AUTHORS}
 
 EOF
 fi
