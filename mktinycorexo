@@ -826,7 +826,7 @@ if [ ! -z "${ESSID}" ]; then
             cat <<EOF >> ${x}/opt/bootlocal.sh
 
 # --essid ${ESSID}
-/sbin/udevadm settle --timeout=5 >/dev/null 2>/dev/null
+/sbin/udevadm settle --timeout=5 --quiet
 for x in wlan0 mlan0; do
     if [ -e /proc/sys/net/ipv4/conf/\$x ]; then
         ifconfig \$x up >/dev/null && \\
