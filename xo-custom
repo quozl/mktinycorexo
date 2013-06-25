@@ -1,0 +1,254 @@
+#!/bin/sh
+set -e
+LOGGING=/tmp/tmp.log
+
+get_xo_version() {
+    xo_ver=`cat /proc/device-tree/mfg-data/MN`
+}
+
+get_dev() {
+    get_xo_version
+    mntopts=""
+    case "$xo_ver" in
+
+        "XO-1")
+        mntopts="-t jffs2 /dev/mtd0"
+        ;;
+
+        "XO-1.5")
+        if [ -e /dev/mmcblk2p2 ]
+        then
+            # XO-1.5 B3 and newer has internal disk here
+            # (mmc2 is wifi on earlier models, we'll never see a disk here)
+            mntopts="-t ext4 /dev/mmcblk2p2"
+            mntboot="-t ext2 /dev/mmcblk2p1"
+        else
+            # XO-1.5 B2 and older has internal disk here
+            # XO-1.5 B3 and newer has external SD card here
+            mntopts="-t ext4 /dev/mmcblk0p2"
+            mntboot="-t ext2 /dev/mmcblk0p1"
+        fi
+        ;;
+
+        "XO-1.75" | "XO-1.75HS" | "XO-4" | "XO-4HS")
+        mntopts="-t ext4 /dev/mmcblk0p2"
+        mntboot="-t ext2 /dev/mmcblk0p1"
+        ;;
+    esac
+    echo "Pre-mount detected $xo_ver using $mntopts"
+}
+
+find_chroot() {
+    run=`ls /mnt/xo/versions/run/`
+    for buildnr in $run 
+    do
+        root_path=/mnt/xo/versions/run/$buildnr
+    done
+}
+
+set_time() {
+    if [ -c /dev/rtc1 ]
+    then
+        RTC=/dev/rtc1
+    else
+        RTC=/dev/rtc
+    fi
+    hwclock -u -s -f $RTC 
+}
+
+prep_chroot() {
+    mkdir -p /mnt/tmp
+    mount -t tmpfs tmpfs /mnt/tmp
+    mkdir -p /mnt/tmp/tmp
+    mount --bind /proc $root_path/proc
+    mount --bind /sys $root_path/sys
+    mount --bind /mnt/tmp/tmp $root_path/tmp
+    mount --bind /dev $root_path/dev
+    chmod 666 /dev/tty1
+    mount --bind /mnt/xo/home $root_path/home >/dev/null 2>/dev/null
+    mount --bind /mnt/xo-boot $root_path/bootpart >/dev/null 2>/dev/null
+    mount --bind /mnt/sda1 $root_path/media >/dev/null 2>/dev/null
+}
+
+do_initrd() {
+    mount /mnt/sda1 >/dev/null 2>/dev/null
+    mkdir -p /mnt/xo
+    mount $mntopts /mnt/xo >/dev/null 2>/dev/null
+    mkdir -p /mnt/xo-boot
+    if ! [ -z $mntboot >/dev/null 2>/dev/null ]
+    then
+        mount $mntboot /mnt/xo-boot >/dev/null 2>/dev/null
+    fi
+}
+
+setup_sysmounts() {
+    mknod /dev/null 1 3
+    mount -t proc /proc /proc
+    mount -t sysfs /sys /sys
+    mount -t devfs -o mode=0755 udev /dev
+    mount -t tmpfs -o mode=0777 /tmp /tmp
+    mknod /dev/null 1 3
+    mknod /dev/ptmx 5 2
+    mknod /dev/console 5 1
+    mknod /dev/kmsg 1 11
+    mkdir /dev/pts
+    mount -t devpts -o move mode=0620 devpts /dev/pts
+}
+
+umnt_sysroot() {
+    umount $root_path/bootpart
+    umount $root_path/media
+    umount $root_path/home
+    umount $root_path/tmp
+    umount $root_path/proc
+    umount $root_path/sys
+    umount $root_path/dev
+    umount /mnt/xo-boot
+    umount /mnt/xo
+}
+
+run_udev() {
+    /sbin/udevadm settle --timeout=5 >/dev/null 2>/dev/null
+#    /sbin/udevd --daemon
+#    /sbin/udevadm trigger
+#    /sbin/udevadm settle --timeout=30
+}
+
+in_chroot(){
+cat << EOF > /mnt/tmp/tmp/in_chroot.sh
+#!/bin/bash
+LOGGING=/tmp/tmp.log
+
+unpack_bundles() {
+    HOME=/home/olpc
+    SOURCE=/media/bundles
+    mkdir -p \$HOME/Library
+    mkdir -p \$HOME/Activities
+    mkdir -p \$HOME/.bootanim
+    f_pb=\$HOME/.bootanim
+    f_xo=\$HOME/Activities
+    f_xol=\$HOME/Library
+    
+    umask 0022
+
+    found=
+    for found in \$(ls \$SOURCE/*.pb 2>/dev/null )
+    do
+        su "-c /usr/bin/unzip -o -q \$found -d \$f_pb" olpc  | tee -a \$LOGGING
+    done
+
+    found=
+    for found in \$(ls \$SOURCE/*.xol 2>/dev/null )
+    do
+        su "-c /usr/bin/unzip -o -q \$found -d \$f_xol" olpc | tee -a \$LOGGING
+    done
+
+    found=
+    for found in \$(ls \$SOURCE/*.xo 2>/dev/null )
+    do
+	echo "installing \$found"
+        set +e
+        su "-c /usr/bin/sugar-install-bundle \$found" 2>/dev/null olpc >/dev/null
+        echo "installed \$found" | tee -a \$LOGGING
+        set -e
+    done
+    echo "leaving su olpc - bundles"
+}
+
+do_yum() {
+    yum -c /media/scripts/yum.conf -y \$yumcmd | tee -a \$LOGGING
+}
+       
+check_yum() {
+    if [ -f /media/scripts/yum.cmd ] && [ -f /media/scripts/yum.conf ] 2>/dev/null
+    then
+        echo "yum files found" | tee -a \$LOGGING
+        yumcmd=\$(cat /media/scripts/yum.cmd)
+        do_yum
+    else
+        echo "yum files not found - skipping" | tee -a \$LOGGING
+    fi
+}
+
+asroot() {
+    if [ -f /media/scripts/asroot ]
+    then
+        chmod 777 /media/scripts/asroot
+        echo "/media/scripts/asroot - RUNNING" | tee -a \$LOGGING
+        /media/scripts/asroot | tee -a \$LOGGING
+    else
+        echo "/media/scripts/asroot - Not found" | tee -a \$LOGGING
+    fi
+}
+
+asolpc() {
+    if [ -f /media/scripts/asolpc ]
+    then
+        echo "/media/scripts/asolpc - RUNNING" | tee -a \$LOGGING
+        chmod 777 /media/scripts/asolpc
+        umask 0022 
+        /bin/su -l -c /media/scripts/asolpc olpc | tee -a \$LOGGING
+        echo "leaving su olpc - asolpc"
+    else
+        echo "/media/scripts/asolpc - Not found" | tee -a \$LOGGING
+    fi
+}
+
+echo "in chroot" 
+
+if [ -d /media/bundles ]
+then
+    if [ \$(ls /media/bundles | wc -w ) -gt 0 ]
+    then        
+        unpack_bundles
+        echo "Bundle installation complete." | tee -a \$LOGGING
+    else
+        echo "no bundles found in /bundles." | tee -a \$LOGGING
+    fi
+else
+    echo "no /bundles directory found." | tee -a \$LOGGING
+fi
+
+check_yum
+asroot
+# run as olpc now
+asolpc
+EOF
+
+chmod 777 /mnt/tmp/tmp/in_chroot.sh
+}
+
+main() {
+#    setup_sysmounts
+    set_time
+    run_udev
+    get_dev
+    do_initrd
+    find_chroot
+    prep_chroot
+    in_chroot
+
+    echo "0" > /sys/devices/platform/dcon/freeze
+    echo "Hello, (deployment people of the) world!"
+    echo "Detected $xo_ver" | tee -a $LOGGING
+    echo "Chrooting to $root_path" | tee -a $LOGGING
+    cp /tmp/tmp.log /mnt/tmp/tmp/
+
+    chroot $root_path /bin/bash /tmp/in_chroot.sh
+    echo
+    echo
+    echo "  -- SUMMARY -- "
+    echo
+    cat /mnt/tmp/tmp/tmp.log
+    echo
+    echo
+    xo_sn=`cat /proc/device-tree/mfg-data/SN`
+    DATE=`date +%F-%H%M%S`
+    cp /mnt/tmp/tmp/tmp.log /mnt/sda1/$xo_sn-$DATE.log
+    umnt_sysroot
+    echo "Press enter to shutdown and then remove USB drive"
+    umount /mnt/sda1
+    read < /dev/tty1 > /dev/tty1
+    /sbin/poweroff
+}
+main
