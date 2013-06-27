@@ -934,6 +934,10 @@ sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
 # start sound
 /usr/local/etc/init.d/alsasound start
 
+# inform about GUI login
+. /etc/init.d/tc-functions
+echo "\${CYAN}To start the GUI, login as user \"tc\" \${NORMAL}" > /dev/console
+
 # Fix game keys
 while [ ! -f /home/\$USER/.xsession ]; do sleep 3 ; done
 sed -i 's/waitforX/sleep\ 5/' /home/\$USER/.xsession
