@@ -1,43 +1,75 @@
-Build tinycore with --xo-custom, this will enable 4 optional routines
+How to create a Tiny Core Linux bootable USB drive
+for customising an installation of OLPC OS on an XO.
 
-When booting the usbkey you will enter a chroot on the target XO and the
-usbkey will be mounted at /media for all operations below.
 
-1. You will be able to populate /bundles on the usbkey with activities,
-they will automatically install.
+Build Tiny Core Linux as described in HOWTO, but add the option
+--xo-custom, which will enable four customisation steps.
 
-2. If you provide /scripts/asroot you can run commands contained in the
-file as the root user.
+Add /bundles/ or /scripts/ directories to the USB drive.  Place Sugar
+activities in the directory /bundles/.  Place additional commands in
+the directory /scripts/.
 
-3. If you provide /scripts/asolpc you can run commands contained in the
-file as the root user.
+When booted from the USB drive, the target XO will do the four
+customisation steps below in the context of a chroot, with the USB
+drive will be mounted at /media.
 
-4. If you provide /scripts/yum.conf, /scripts/yum.cmd, and a configured yum
-repo then yum gets executed with -y -c pointing to /scripts/yum.conf and
-/scripts/yum.cmd as the arguments. The yum.conf file would use
-file:///media/<path/to/repo>
+1.  each Sugar activity bundle, each content bundle, and each boot
+animation customisation bundle, found in the directory /bundles/, will
+be automatically installed, see
+http://wiki.laptop.org/go/Customization_stick for how to assemble the
+/bundles/ directory.
 
-Examples:
+2.  a script named asroot in the directory /scripts/ will be run as
+root,
 
-asroot:
+3.  a script named asolpc in the directory /scripts/ will be run as
+user olpc,
+
+4.  if files yum.conf and yum.cmd in the directory /scripts/ are
+present, then the command in yum.cmd will be run as user root, using
+the yum.conf configuration file,
+
+After completion, you will be asked to "Press enter to shutdown and
+then remove USB drive".  Once the power is off, you can remove the USB
+drive.
+
+Example asroot:
 -----------------
 #!/bin/bash
-cp /media/<file> /path/on/xo
+
+# set the time zone to Canada/Central
 cp /usr/share/zoneinfo/Canada/Central /etc/localtime
+
+# copy some file to the XO
+# cp /media/<file> /path/on/xo
 -----------------
 
-asolpc:
+Example asolpc:
 -----------------
 #!/bin/bash
-cp /media/<file> ~/Documents/
-sed -i -e '/replacethis/withthis/' /some/file
 
+# copy a file from USB drive into Documents
+cp /media/howto.txt ~/Documents/
+
+# make a change to a file
+# sed -i -e '/replacethis/withthis/' /some/file
+
+# set language default
 cat << EOF > ~/.i18n
 LANG=en_AU.UTF-8
 LC_ALL=en_AU.UTF-8
 LANGUAGE=en_GB.utf8:en_US.utf8
 EOF
 -----------------
+
+Example yum setup:
+
+Provide /scripts/yum.conf, /scripts/yum.cmd, and a configured yum repo
+and yum will be executed with -y -c pointing to /scripts/yum.conf and
+/scripts/yum.cmd as the arguments. The yum.conf file would use
+file:///media/<path/to/repo>
+
+The example below shows how to install the xs-config-xo package.
 
 yum.cmd:
 -----------------
@@ -58,24 +90,11 @@ installonly_limit=3
 
 # disables /etc/yum.repos.d
 reposdir=/tmp
+
 # keep the log file
 logfile=/home/olpc/.sugar/default/yum.log
 
-#  This is the default, if you make this bigger yum won't see if the
-metadata
-# is newer on the remote and so you'll "gain" the bandwidth of not having to
-# download the new metadata and "pay" for it by yum not having correct
-# information.
-#  It is esp. important, to have correct metadata, for distributions like
-# Fedora which don't keep old packages around. If you don't like this
-checking
-# interupting your command line usage, it's much better to have something
-# manually check the metadata once an hour (yum-updatesd will do this).
-# metadata_expire=90m
-
-# PUT YOUR REPOS HERE OR IN separate files named file.repo
-# in /etc/yum.repos.d
-
+# repository on the USB drive
 [media.repo]
 name=flash
 baseurl=file:///media/xs-repo/armhfp/18/
