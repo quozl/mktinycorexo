@@ -1,0 +1,85 @@
+Build tinycore with --xo-custom, this will enable 4 optional routines
+
+When booting the usbkey you will enter a chroot on the target XO and the
+usbkey will be mounted at /media for all operations below.
+
+1. You will be able to populate /bundles on the usbkey with activities,
+they will automatically install.
+
+2. If you provide /scripts/asroot you can run commands contained in the
+file as the root user.
+
+3. If you provide /scripts/asolpc you can run commands contained in the
+file as the root user.
+
+4. If you provide /scripts/yum.conf, /scripts/yum.cmd, and a configured yum
+repo then yum gets executed with -y -c pointing to /scripts/yum.conf and
+/scripts/yum.cmd as the arguments. The yum.conf file would use
+file:///media/<path/to/repo>
+
+Examples:
+
+asroot:
+-----------------
+#!/bin/bash
+cp /media/<file> /path/on/xo
+cp /usr/share/zoneinfo/Canada/Central /etc/localtime
+-----------------
+
+asolpc:
+-----------------
+#!/bin/bash
+cp /media/<file> ~/Documents/
+sed -i -e '/replacethis/withthis/' /some/file
+
+cat << EOF > ~/.i18n
+LANG=en_AU.UTF-8
+LC_ALL=en_AU.UTF-8
+LANGUAGE=en_GB.utf8:en_US.utf8
+EOF
+-----------------
+
+yum.cmd:
+-----------------
+install xs-config-xo
+-----------------
+
+yum.conf:
+-----------------
+[main]
+cachedir=/var/cache/yum
+keepcache=1
+debuglevel=2
+exactarch=1
+obsoletes=1
+gpgcheck=0
+plugins=0
+installonly_limit=3
+
+# disables /etc/yum.repos.d
+reposdir=/tmp
+# keep the log file
+logfile=/home/olpc/.sugar/default/yum.log
+
+#  This is the default, if you make this bigger yum won't see if the
+metadata
+# is newer on the remote and so you'll "gain" the bandwidth of not having to
+# download the new metadata and "pay" for it by yum not having correct
+# information.
+#  It is esp. important, to have correct metadata, for distributions like
+# Fedora which don't keep old packages around. If you don't like this
+checking
+# interupting your command line usage, it's much better to have something
+# manually check the metadata once an hour (yum-updatesd will do this).
+# metadata_expire=90m
+
+# PUT YOUR REPOS HERE OR IN separate files named file.repo
+# in /etc/yum.repos.d
+
+[media.repo]
+name=flash
+baseurl=file:///media/xs-repo/armhfp/18/
+enabled=1
+gpgcheck=0
+gpgkey=
+-----------------
