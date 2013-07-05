@@ -34,6 +34,9 @@ get_dev() {
         mntopts="-t ext4 /dev/mmcblk0p2"
         mntboot="-t ext2 /dev/mmcblk0p1"
         ;;
+	*)
+	echo "Unsupported XO version '$xo_ver', aborting!"
+	exit 1
     esac
     echo "Pre-mount detected $xo_ver using $mntopts"
 }
