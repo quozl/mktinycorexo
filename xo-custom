@@ -30,7 +30,7 @@ get_dev() {
         fi
         ;;
 
-        "XO-1.75" | "XO-1.75HS" | "XO-4" | "XO-4HS" | "XO-4 HS Touch")
+        "XO-1.75" | "XO-1.75HS" | "XO-4" | "XO-4HS" | "XO-4 HS Touch" | "XO-4 Touch")
         mntopts="-t ext4 /dev/mmcblk0p2"
         mntboot="-t ext2 /dev/mmcblk0p1"
         ;;
