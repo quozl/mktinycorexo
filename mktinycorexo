@@ -52,6 +52,9 @@ COLOUR=no
 # setup customisation stick
 CUSTOM=
 
+# create .zd file
+ZD=no
+
 # option defaults
 
 # use a local cache of upstream files on your build system
@@ -178,6 +181,7 @@ device         optional block device to create boot partition on.
                TCZ extensions MUST be included in the initrd
                for GUI to work properly on the XO-1.75 and the XO-4.
 --xo-custom    add xo-custom boot directive
+--zd           create a .zd file
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
 --version      displays script version.
@@ -317,6 +321,10 @@ while [ ! -z "${1}" ]; do
         --xo-custom)
             shift
             CMDLINE="$CMDLINE xo-custom"
+            ;;
+        --zd)
+            shift
+            ZD=yes
             ;;
         --inspect)
             shift
@@ -1096,6 +1104,27 @@ EOF
 # cleanup
 rm -rf $(pwd)/tmp/
 p_end "ok"
+
+# create .zd file
+if [ $ZD = yes ]; then
+    IMAGE=output.img
+    MOUNTPOINT=output.mnt
+    SIZE=$(du --summarize --bytes output|cut -f1)
+    SIZE=$(( ( $SIZE * 110 / 100 ) / 1024 ))
+    dd if=/dev/zero of=$IMAGE bs=1024 count=$SIZE >/dev/null 2>/dev/null
+    mkfs.fat $IMAGE
+    LOOP=$(losetup --show --find $IMAGE)
+    mkdir -p $MOUNTPOINT
+    mount $LOOP $MOUNTPOINT
+    rsync --archive output/* $MOUNTPOINT/
+    umount $MOUNTPOINT
+    rmdir $MOUNTPOINT
+    until losetup -d $LOOP; do sleep 0.1; done
+    # requires olpc-os-builder package to be installed
+    /usr/libexec/olpc-os-builder/zhashfs 0x20000 sha256 $IMAGE tc.zsp tc.zd
+    rm -f $IMAGE
+    exit 0
+fi
 
 # copy to drive
 if [ ! -z ${DEVICE} ]; then
