@@ -967,11 +967,11 @@ fi
 # pack
 p_begin "Repacking initrd ... "
 if [ -d ${TREE_X86} ]; then
-    (cd ${TREE_X86} && (find|cpio -o -H newc --quiet|gzip -2 >${INIT_X86}))
+    (cd ${TREE_X86} && (find|cpio -o -H newc --quiet|gzip -9 -n >${INIT_X86}))
     rm -rf ${TREE_X86}
 fi
 if [ -d ${TREE_ARM} ]; then
-    (cd ${TREE_ARM} && (find|cpio -o -H newc --quiet|gzip -2 >${INIT_ARM}))
+    (cd ${TREE_ARM} && (find|cpio -o -H newc --quiet|gzip -9 -n >${INIT_ARM}))
     rm -rf ${TREE_ARM}
 fi
 p_end "ok"
