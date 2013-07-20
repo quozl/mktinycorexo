@@ -500,18 +500,22 @@ function get_wireless_firmware_8787 {
 }
 
 if [ $C = yes ]; then
+    p_informational "Getting XO-1 files ... "
     get_kernel ${C_KERNEL} ${C_BUILD} ${C_MODULES} ${C_FIRMWARE}
     get_wireless_firmware_8388
 fi
 if [ $D = yes ]; then
+    p_informational "Getting XO-1.5 files ... "
     get_kernel ${D_KERNEL} ${D_BUILD} ${D_MODULES} ${D_FIRMWARE}
     get_wireless_firmware_8686
 fi
 if [ $E = yes ]; then
+    p_informational "Getting XO-1.75 files ... "
     get_kernel ${E_KERNEL} ${E_BUILD} ${E_MODULES} ${E_FIRMWARE}
     get_wireless_firmware_8686
 fi
 if [ $F = yes ]; then
+    p_informational "Getting XO-4 files ... "
     get_kernel ${F_KERNEL} ${F_BUILD} ${F_MODULES} ${F_FIRMWARE}
     get_wireless_firmware_8686
     get_wireless_firmware_8787
