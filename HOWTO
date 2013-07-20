@@ -1,34 +1,40 @@
 How to create a Tiny Core Linux bootable USB drive
 from upstream distribution components:
 
-1.  select a USB drive that has nothing on it that is wanted,
+1.  select a system for building with; last tested on an XO-4 running
+    OLPC OS 13.2.0 but any recent Linux system should do,  
+    
+2.  ensure you have an internet connection, (the script
+    obtains all the needed files from the internet if they are not 
+    available on your system),
 
-2.  select a system for building with; last tested on an XO-4 running
-    OLPC OS 13.2.0, or use some other Linux system, (the script
-    obtains the kernel from the internet if it is not available on
-    your system), then plug the USB drive into it,
-
-3.  identify the USB drive from /proc/partitions, such as /dev/sda1,
-    and unmount it if it was automatically mounted,
-
-4.  ensure you have an internet connection,
-
-5.  clone the repository,
+3.  clone the repository,
 
     git clone http://dev.laptop.org/~quozl/mktinycorexo/.git
     cd mktinycorexo
+    
+4.  Optional: select a USB drive that has nothing on it that is wanted, 
+    plug it your build system and identify the USB drive from 
+    /proc/partitions, such as /dev/sda1.
+    unmount it if it was automatically mounted,
 
-6.  as root run the script:
+5.  as root run the script:
 
     sudo mktinycorexo /dev/sda1
 
-    ... where /dev/sda1 is the answer you obtained from step 3 above,
+    ... where /dev/sda1 is the answer you obtained from step 4 above, if used
     (take care, because any directory called boot on this device will
     be changed),
 
-7.  wait for completion,
+6.  wait for completion,
+
+7.  Optional: if step 4 above is skipped insert a USB drive to copy the 
+    build files as directed, 
 
 8.  boot from the USB drive,
 
 9.  if disk space is required, you can remove the cache/ directory, as
     it contains downloads only.
+    
+Run `mktinicorexo --help' for additional options
+
