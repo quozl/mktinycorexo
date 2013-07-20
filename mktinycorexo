@@ -24,6 +24,19 @@
 # Modified by jerry@laptop.org.au to add customization stick mode.
 # June 2013.
 #
+
+#check that we have the needed tools
+for x in rsync patch cpio gzip git zcat gunzip
+do
+    which $x
+    if [ $? -ne 0 ] ; then
+        echo -e "\\0033[1;34m"
+        echo "Please install $x and run the script again"
+        echo -en "\\0033[0;39m"
+        exit 1
+    fi
+done
+
 set -e
 
 # version of this script
