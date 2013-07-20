@@ -413,14 +413,14 @@ function get_initrd {
 
 if [ $C = yes -o $D = yes ]; then
     get_initrd \
-        http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
+        http://repo.tinycorelinux.net/${CORE_VERSION} \
         x86/release/distribution_files \
         ${CORE_INITRD_X86}.gz
 fi
 
 if [ $E = yes -o $F = yes ]; then
     get_initrd \
-        http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION} \
+        http://repo.tinycorelinux.net/${CORE_VERSION} \
         ${CORE_INITRD_ARM_ARCH} \
         ${CORE_INITRD_ARM}.gz
 fi
@@ -671,7 +671,7 @@ fi
 
 if [ $C = yes -o $D = yes ]; then
     p_begin "Checking x86 extensions ... "
-    base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+    base=http://repo.tinycorelinux.net/${CORE_VERSION}
     uoc=http://ftp.cc.uoc.gr/mirrors/linux/TinyCore_for_XO1/TC-XO_sources
     cache=cache/TCZs_x86/tce/optional/
     flags="-q -c -P $cache"
@@ -707,7 +707,7 @@ fi
 if [ $E = yes -o $F = yes ]; then
     p_begin "Checking armv6/armv7 extensions ... "
     flags="-q -c -P cache/TCZs_arm/tce/optional/"
-    base=http://distro.ibiblio.org/tinycorelinux/${CORE_VERSION}
+    base=http://repo.tinycorelinux.net/${CORE_VERSION}
     uoc=http://ftp.cc.uoc.gr/mirrors/linux/TinyCore_for_XO1/TC-XO_sources
     for file in $(<cache/TCZs_arm/tce/onboot.lst); do
         if [ ! -f cache/TCZs_arm/tce/optional/$file ] ; then
