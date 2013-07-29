@@ -1124,6 +1124,7 @@ p_end "ok"
 
 # create .zd file
 if [ $ZD = yes ]; then
+    echo "Tiny Core Linux for OLPC XO, ${VERSION}" > output/boot/olpc_build
     IMAGE=output.img
     MOUNTPOINT=output.mnt
     SIZE=$(du --summarize --bytes output|cut -f1)
