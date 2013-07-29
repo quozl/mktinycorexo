@@ -40,7 +40,7 @@ done
 set -e
 
 # version of this script
-VERSION=2013-07-15
+VERSION=2013-07-30
 
 # authors
 AUTHORS="quozl@laptop.org mavrothal@yahoo.com jerry@laptop.org.au"
