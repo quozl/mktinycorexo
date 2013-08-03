@@ -21,7 +21,7 @@
 # Modified by mavrothal@yahoo.com for TC 4.x, OLPC 13.2.0 kernels
 # and all 4 XO models.  May 2013
 #
-# Modified by jerry@laptop.org.au to add customization stick mode.
+# Modified by jerry@laptop.org.au to add customisation stick mode.
 # June 2013.
 #
 
@@ -64,6 +64,7 @@ COLOUR=no
 
 # setup customisation stick
 CUSTOM=
+bundle_base=
 
 # create .zd file
 ZD=no
@@ -194,6 +195,7 @@ device         optional block device to create boot partition on.
                TCZ extensions MUST be included in the initrd
                for GUI to work properly on the XO-1.75 and the XO-4.
 --xo-custom    add xo-custom boot directive
+--bundles_url  URL to download customisation bundles from
 --zd           create a .zd file
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
@@ -334,6 +336,12 @@ while [ ! -z "${1}" ]; do
         --xo-custom)
             shift
             CMDLINE="$CMDLINE xo-custom"
+            CUSTOM="yes"
+            ;;
+        --bundles_url)
+            shift
+            bundle_base=${1}
+            shift
             ;;
         --zd)
             shift
@@ -1060,6 +1068,50 @@ if [ "$TCZLOC" = "device" ] ; then
     for DEP in $(ls output/cde/optional/*.tcz.dep); do
         sed -i '/KERNEL/d' $DEP
     done
+fi
+
+#prepare customisation
+if [ $CUSTOM = yes ]; then
+    mkdir output/{scripts,bundles}
+    set +e;mkdir cache/{scripts,bundles};set -e
+    # add scripts if present
+    if [ "$(ls cache/scripts)" != "" ]; then
+        cp cache/scripts/* output/scripts
+    else
+        p_error "There are NO customisation scripts.
+Add them in the cache/scripts folder and run again or
+add them in the \"scripts\" folder of the device.
+"
+    fi
+    # download and add bundles
+    if [ -f customisation_bundles ]; then
+        if [ "$bundle_base" != "" ]; then
+            p_begin "Checking for XO customisation bundles... "
+            flags="-q -c -P cache/bundles/"
+            base=$bundle_base
+            for bundle in $(<customisation_bundles); do
+                if [ ! -f cache/bundles/$bundle ]; then
+                    wget ${flags} ${base}/$bundle
+                    p_end "got $bundle"
+                fi
+            done
+        fi
+        for bundle in $(<customisation_bundles); do
+            if [ -f cache/bundles/$bundle ]; then
+                cp cache/bundles/$bundle output/bundles
+            else
+                p_error "The $bundle activity does not exist in cache/bundles.
+Please add it and run mktinycorexo again"
+                exit 1
+            fi
+        done
+        p_end "ok"
+    else
+         p_error "There is No XO customisation bundle list.
+Please make a customisation_bundles file or
+add the xo activities in the \"bundles\" folder of the device
+"
+    fi
 fi
 
 p_begin "Adding Open Firmware boot script ... "
