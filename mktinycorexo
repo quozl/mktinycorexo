@@ -64,7 +64,7 @@ COLOUR=no
 
 # setup customisation stick
 CUSTOM=
-bundle_base=
+BUNDLES=
 
 # create .zd file
 ZD=no
@@ -195,7 +195,7 @@ device         optional block device to create boot partition on.
                TCZ extensions MUST be included in the initrd
                for GUI to work properly on the XO-1.75 and the XO-4.
 --xo-custom    add xo-custom boot directive
---bundles_url  URL to download customisation bundles from
+--bundles x    URL to download customisation bundles from
 --zd           create a .zd file
 --inspect      pause to allow inspection of the initrd filesystem.
 --colour       displays script messages in colour.
@@ -338,9 +338,9 @@ while [ ! -z "${1}" ]; do
             CMDLINE="$CMDLINE xo-custom"
             CUSTOM="yes"
             ;;
-        --bundles_url)
+        --bundles)
             shift
-            bundle_base=${1}
+            BUNDLES=${1}
             shift
             ;;
         --zd)
@@ -1070,10 +1070,10 @@ if [ "$TCZLOC" = "device" ] ; then
     done
 fi
 
-#prepare customisation
+# prepare customisation
 if [ $CUSTOM = yes ]; then
     mkdir output/{scripts,bundles}
-    set +e;mkdir cache/{scripts,bundles};set -e
+    mkdir -p cache/{scripts,bundles}
     # add scripts if present
     if [ "$(ls cache/scripts)" != "" ]; then
         cp cache/scripts/* output/scripts
@@ -1085,13 +1085,12 @@ add them in the \"scripts\" folder of the device.
     fi
     # download and add bundles
     if [ -f customisation_bundles ]; then
-        if [ "$bundle_base" != "" ]; then
+        if [ "$BUNDLES" != "" ]; then
             p_begin "Checking for XO customisation bundles... "
             flags="-q -c -P cache/bundles/"
-            base=$bundle_base
             for bundle in $(<customisation_bundles); do
                 if [ ! -f cache/bundles/$bundle ]; then
-                    wget ${flags} ${base}/$bundle
+                    wget ${flags} $BUNDLES/$bundle
                     p_end "got $bundle"
                 fi
             done
@@ -1107,7 +1106,7 @@ Please add it and run mktinycorexo again"
         done
         p_end "ok"
     else
-         p_error "There is No XO customisation bundle list.
+        p_error "There is no customisation bundle list.
 Please make a customisation_bundles file or
 add the xo activities in the \"bundles\" folder of the device
 "
