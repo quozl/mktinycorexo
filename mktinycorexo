@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 #
 # Tiny Core Linux target system builder for OLPC XO laptops
 # Copyright (C) 2011  James Cameron (quozl@laptop.org)
@@ -24,8 +25,6 @@
 # Modified by jerry@laptop.org.au to add customisation stick mode.
 # June 2013.
 #
-
-set -e
 
 # version of this script
 VERSION=2013-07-30
