@@ -378,7 +378,7 @@ done
 
 # Renaming the TCZs will prohibit install script to run properly
 # Do not build GUI for ARM-XOs if we try to save the TCZs in the boot device
-if [ "${TCZLOC}" = "device" -a "${GUI}" = "yes" ] ; then
+if [ "${TCZLOC}" = "device" -a "${GUI}" = "yes" ]; then
     if [ $E = yes -o $F = yes ]; then
         p_error "To build a GUI for the XO-1.75 or the XO-4"
         p_error "you MUST include the TCZs in the initrd"
@@ -415,11 +415,11 @@ function get_initrd {
         return
     fi
 
-    if [ $CACHE = no ] ; then
+    if [ $CACHE = no ]; then
         p_begin "Checking if $file is up to date ... "
         wget $flags $path/$checksum
         if [ "$(cat cache/$checksum | cut -f 1 -d ' ')" \
-            != "$(md5sum cache/$file | cut -f 1 -d ' ')" ] ; then
+            != "$(md5sum cache/$file | cut -f 1 -d ' ')" ]; then
             p_end "no"
             rm -f cache/$file
             p_begin "Downloading $file ... "
@@ -578,7 +578,7 @@ ncurses-common.tcz
 ncurses.tcz
 ncurses-utils.tcz
 EOF
-    if [ $GUI = yes ] ; then
+    if [ $GUI = yes ]; then
         cat <<EOF >> cache/TCZs_x86/tce/onboot.lst
 Xlibs.tcz
 Xorg-7.6-bin.tcz
@@ -649,7 +649,7 @@ ncurses.tcz
 ncurses-utils.tcz
 rsync.tcz
 EOF
-    if [ $GUI = yes ] ; then
+    if [ $GUI = yes ]; then
         cat <<EOF >> cache/TCZs_arm/tce/onboot.lst
 expat2.tcz
 pixman.tcz
@@ -699,7 +699,7 @@ if [ $C = yes -o $D = yes ]; then
     cache=cache/TCZs_x86/tce/optional/
     flags="-q -c -P $cache"
     for file in $(<cache/TCZs_x86/tce/onboot.lst); do
-        if [ ! -f cache/TCZs_x86/tce/optional/$file ] ; then
+        if [ ! -f cache/TCZs_x86/tce/optional/$file ]; then
             wget ${flags} ${base}/x86/tcz/$file || \
                 wget ${flags} ${uoc}/$file
             wget ${flags} ${base}/x86/tcz/$file.md5.txt || \
@@ -708,12 +708,12 @@ if [ $C = yes -o $D = yes ]; then
                 wget ${flags} ${uoc}/$file.dep || true
             p_end "got $file"
         else
-            if [ $CACHE = no ] ; then
+            if [ $CACHE = no ]; then
                 rm -f $cache/$file.md5.txt
                 wget ${flags} ${base}/x86/tcz/$file.md5.txt || \
                     wget ${flags} ${uoc}/$file.md5.txt
                 if [ "$(cat $cache/$file.md5.txt | cut -f 1 -d ' ')" \
-                    != "$(md5sum $cache/$file | cut -f 1 -d ' ')" ] ; then
+                    != "$(md5sum $cache/$file | cut -f 1 -d ' ')" ]; then
                     rm -f cache/TCZs_x86/tce/optional/$file{,.dep}
                     wget ${flags} ${base}/x86/tcz/$file || \
                         wget ${flags} ${uoc}/$file
@@ -733,7 +733,7 @@ if [ $E = yes -o $F = yes ]; then
     base=http://repo.tinycorelinux.net/${CORE_VERSION}
     uoc=http://ftp.cc.uoc.gr/mirrors/linux/TinyCore_for_XO1/TC-XO_sources
     for file in $(<cache/TCZs_arm/tce/onboot.lst); do
-        if [ ! -f cache/TCZs_arm/tce/optional/$file ] ; then
+        if [ ! -f cache/TCZs_arm/tce/optional/$file ]; then
             wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file || \
                 wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file || \
                 wget ${flags} ${uoc}/$file
@@ -745,12 +745,12 @@ if [ $E = yes -o $F = yes ]; then
                 wget ${flags} ${uoc}/$file.dep || true
             p_end "got $file"
         else
-            if [ $CACHE = no ] ; then
+            if [ $CACHE = no ]; then
                 wget -q -c -P /tmp/ ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file.md5.txt || \
                     wget -q -c -P /tmp/ ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file.md5.txt || \
                     wget -q -c -P /tmp/ ${uoc}/$file.md5.txt
                 if [ "$(cat /tmp/$file.md5.txt)" != \
-                    "$(cat cache/TCZs_arm/tce/optional/$file.md5.txt)" ] ; then
+                    "$(cat cache/TCZs_arm/tce/optional/$file.md5.txt)" ]; then
                     rm -f cache/TCZs_arm/tce/optional/"$file"*
                     wget ${flags} ${base}/${CORE_INITRD_ARM_ARCH}/tcz/$file || \
                         wget ${flags} ${base}/${CORE_FALLBACK_ARM_ARCH}/tcz/$file || \
@@ -954,7 +954,7 @@ if [ "$TCZLOC" = "initrd" ]; then
 fi
 
 # Further modify initrd if we build a GUI
-if [ $GUI = yes ] ; then
+if [ $GUI = yes ]; then
     for x in ${TREE_X86} ${TREE_ARM}; do
         if [ -d $x ]; then
             cat <<EOF >> ${x}/opt/bootlocal.sh
@@ -990,7 +990,7 @@ if [ $INSPECT = yes ]; then
     echo -en "\\0033[0;39m"
     sh < /dev/tty > /dev/tty || true
     read CONTINUE
-    if [ "$CONTINUE" != "" ];then
+    if [ "$CONTINUE" != "" ]; then
         exit 0
     fi
 fi
@@ -1037,7 +1037,7 @@ if [ $F = yes ]; then
 fi
 p_end "ok"
 
-if [ "$TCZLOC" = "device" ] ; then
+if [ "$TCZLOC" = "device" ]; then
     mkdir -p output/cde/optional
     if [ $C = yes -o $D = yes ]; then
         cp -a cache/TCZs_x86/tce/onboot.lst output/cde/XO_x86.lst
