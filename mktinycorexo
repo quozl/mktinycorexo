@@ -1204,26 +1204,3 @@ if [ ! -z ${DEVICE} ]; then
     p_end "ok"
     exit 0
 fi
-
-# Prompt for install into a usb drive
-echo -e "\\0033[1;34m"
-echo "Would you like to copy the build files to a USBstick/SDcard?"
-echo "If yes, please mount the USB stick or SDcard *NOW* "
-echo "...and then hit \"c\" > enter to continue"
-echo "or just hit enter to finish and transfer the files manually"
-read COPY
-if [ "$COPY" = "c" ]; then
-    DEVICE=$(df | awk 'END { print $6 }')
-    echo "The files will be transferred to $DEVICE."
-    echo "if this is OK, hit \"t\" > enter to continue"
-    echo "if not, hit enter to finish and transfer the files manually"
-    read TRANSFER
-    if [ "$TRANSFER" = "t" ];then
-        rsync --archive --checksum --delete output/* $DEVICE/
-    else
-        echo "Copy the contents of ./output directory into a USB media/SD card"
-    fi
-else
-    echo "Copy the contents of ./output directory into a USB media/SD card"
-fi
-echo -en "\\0033[0;39m"
