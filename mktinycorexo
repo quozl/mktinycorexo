@@ -50,7 +50,7 @@ INSPECT=no
 COLOUR=no
 
 # setup customisation stick
-CUSTOM=
+CUSTOM=no
 BUNDLES=
 
 # create .zd file
