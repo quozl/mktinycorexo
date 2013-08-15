@@ -935,8 +935,8 @@ if [ "$TCZLOC" = "initrd" ]; then
         done
         cp -a cache/TCZs_x86/tce/onboot.lst ${TREE_X86}/tmp/builtin/
         # Remove references to the kernel from TC extensions
-        for DEP in $(ls ${TREE_X86}/tmp/builtin/optional/*.tcz.dep); do
-            sed -i '/KERNEL/d' $DEP
+        for file in $(ls ${TREE_X86}/tmp/builtin/optional/*.tcz.dep); do
+            sed -i '/KERNEL/d' $file
         done
     fi
     if [ -d ${TREE_ARM} ]; then
@@ -947,8 +947,8 @@ if [ "$TCZLOC" = "initrd" ]; then
         done
         cp -a cache/TCZs_arm/tce/onboot.lst ${TREE_ARM}/tmp/builtin/
         # Remove references to the kernel from TC extensions
-        for DEP in $(ls ${TREE_ARM}/tmp/builtin/optional/*.tcz.dep); do
-            sed -i '/KERNEL/d' $DEP
+        for file in $(ls ${TREE_ARM}/tmp/builtin/optional/*.tcz.dep); do
+            sed -i '/KERNEL/d' $file
         done
     fi
 fi
@@ -1048,23 +1048,23 @@ if [ "$TCZLOC" = "device" ]; then
     if [ $E = yes -o $F = yes ]; then
         cp -a cache/TCZs_arm/tce/onboot.lst output/cde/XO_arm.lst
         sed -i 's/\.tcz/_a\.tcz/g' output/cde/XO_arm.lst
-        for TCZ in $(<cache/TCZs_arm/tce/onboot.lst); do
-            NAME=$(echo $TCZ | sed 's/\.tcz//')
-            cp -a cache/TCZs_arm/tce/optional/$TCZ \
-                output/cde/optional/${NAME}_a.tcz
-            cp -a cache/TCZs_arm/tce/optional/$TCZ.md5.txt \
-                output/cde/optional/${NAME}_a.tcz.md5.txt
-            cp -a cache/TCZs_arm/tce/optional/$TCZ.dep \
-                output/cde/optional/${NAME}_a.tcz.dep || true
+        for file in $(<cache/TCZs_arm/tce/onboot.lst); do
+            name=${file/.tcz/}
+            cp -a cache/TCZs_arm/tce/optional/$file \
+                output/cde/optional/${name}_a.tcz
+            cp -a cache/TCZs_arm/tce/optional/$file.md5.txt \
+                output/cde/optional/${name}_a.tcz.md5.txt
+            cp -a cache/TCZs_arm/tce/optional/$file.dep \
+                output/cde/optional/${name}_a.tcz.dep || true
         done
         # fix ARM tcz dependency names
-        for ADEP in $(ls output/cde/optional/*_a.tcz.dep); do
-            sed -i 's/\.tcz/_a\.tcz/g' $ADEP
+        for file in $(ls output/cde/optional/*_a.tcz.dep); do
+            sed -i 's/\.tcz/_a\.tcz/g' $file
         done
     fi
     # Remove references to the kernel from TC extensions
-    for DEP in $(ls output/cde/optional/*.tcz.dep); do
-        sed -i '/KERNEL/d' $DEP
+    for file in $(ls output/cde/optional/*.tcz.dep); do
+        sed -i '/KERNEL/d' $file
     done
 fi
 
