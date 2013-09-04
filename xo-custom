@@ -49,16 +49,6 @@ find_chroot() {
     done
 }
 
-set_time() {
-    if [ -c /dev/rtc1 ]
-    then
-        RTC=/dev/rtc1
-    else
-        RTC=/dev/rtc
-    fi
-    hwclock -u -s -f $RTC 
-}
-
 prep_chroot() {
     mkdir -p /mnt/tmp
     mount -t tmpfs tmpfs /mnt/tmp
@@ -226,7 +216,6 @@ chmod 777 /mnt/tmp/tmp/in_chroot.sh
 
 main() {
 #    setup_sysmounts
-    set_time
     run_udev
     get_dev
     do_initrd

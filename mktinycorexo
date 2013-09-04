@@ -837,6 +837,9 @@ if [ -d ${TREE_ARM} ]; then
         sed -i 's/\$(uname \-r)/3\.6\.11\-piCore/' \
             ${TREE_ARM}/usr/bin/$x
     done
+    # Point to the correct  rtc device
+    sed -i 's/rtc0/rtc1/' ${TREE_ARM}/etc/init.d/tc-config
+    sed -i 's/\-s \&/\-s \-f \/dev\/rtc1 \&/g' ${TREE_ARM}/etc/init.d/tc-config
 fi
 p_end "ok"
 
