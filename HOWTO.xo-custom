@@ -3,13 +3,26 @@ for customising an installation of OLPC OS on an XO.
 
 
 Build Tiny Core Linux as described in HOWTO, but add the option
---xo-custom, which will enable four customisation steps.
+--xo-custom, which will enable customisation.
 
-With a text editor generate the customisation_bundles file and add
-a list of the xo activities and bundles to be added.  Place Sugar
-activities in the directory cache/bundles/ or provide a URL to download
-the files from using the --bundles_url option of the mktinycorexo script.
-Place additional commands in the directory cache/scripts/.
+There are two methods of adding activities and scripts -- adding them
+during creation of the bootable USB drive, or adding them afterwards:
+
+*   during creation of the bootable USB drive,
+
+    With a text editor generate the customisation_bundles file and add
+    a list of the activities and bundles to be added.  To have your
+    customisations included at building time, place Sugar activities
+    in the directory cache/bundles/ or provide a URL to download the
+    files from using the --bundles_url option of the mktinycorexo
+    script.  Place additional commands in the directory
+    cache/scripts/.
+
+*   after creation of the bootable USB drive,
+
+    You can add or change your customisations directly to the USB
+    drive in /bundles and /scripts.
+
 
 When booted from the USB drive, the target XO will do the four
 customisation steps below in the context of a chroot, with the USB
