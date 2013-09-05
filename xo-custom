@@ -12,7 +12,7 @@ get_dev() {
     case "$xo_ver" in
 
         "XO-1")
-        mntopts="-t jffs2 /dev/mtd0"
+        mntopts="-t jffs2 mtd0"
         ;;
 
         "XO-1.5")
@@ -69,7 +69,10 @@ prep_chroot() {
     mount --bind /dev $root_path/dev
     chmod 666 /dev/tty1
     mount --bind /mnt/xo/home $root_path/home >/dev/null 2>/dev/null
-    mount --bind /mnt/xo-boot $root_path/bootpart >/dev/null 2>/dev/null
+    if ! [ -z $mntboot >/dev/null 2>/dev/null ]
+    then
+        mount --bind /mnt/xo-boot $root_path/bootpart >/dev/null 2>/dev/null
+    fi
     mount --bind /mnt/sda1 $root_path/media >/dev/null 2>/dev/null
 }
 
