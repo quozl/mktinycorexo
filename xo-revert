@@ -5,6 +5,8 @@
 set -e
 IP=${1}
 shift
+umount /mnt/mmcblk0p1 2>/dev/null || true
+umount /mnt/mmcblk0p2 2>/dev/null || true
 mount /mnt/mmcblk0p1
 mount /mnt/mmcblk0p2
 echo "reverting boot partition"
