@@ -92,7 +92,10 @@ setup_sysmounts() {
 }
 
 umnt_sysroot() {
-    umount $root_path/bootpart
+    if ! [ -z $mntboot >/dev/null 2>/dev/null ]
+    then
+	umount $root_path/bootpart
+    fi
     umount $root_path/media
     umount $root_path/home
     umount $root_path/tmp
