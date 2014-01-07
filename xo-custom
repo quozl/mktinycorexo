@@ -102,7 +102,10 @@ umnt_sysroot() {
     umount $root_path/proc
     umount $root_path/sys
     umount $root_path/dev
-    umount /mnt/xo-boot
+    if ! [ -z $mntboot >/dev/null 2>/dev/null ]
+    then
+        umount /mnt/xo-boot
+    fi
     umount /mnt/xo
 }
 
