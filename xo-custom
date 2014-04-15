@@ -109,11 +109,8 @@ umnt_sysroot() {
     umount /mnt/xo
 }
 
-run_udev() {
-    /sbin/udevadm settle --timeout=5 >/dev/null 2>/dev/null
-#    /sbin/udevd --daemon
-#    /sbin/udevadm trigger
-#    /sbin/udevadm settle --timeout=30
+wait_dev() {
+    until [ -e /dev/sda1 ]; do sleep 0.25; done
 }
 
 in_chroot(){
@@ -222,7 +219,7 @@ chmod 777 /mnt/tmp/tmp/in_chroot.sh
 
 main() {
 #    setup_sysmounts
-    run_udev
+    wait_dev
     get_dev
     do_initrd
     find_chroot
