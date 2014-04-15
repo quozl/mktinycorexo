@@ -866,8 +866,8 @@ if [ ! -z "${ESSID}" ]; then
 for x in wlan0 mlan0; do
     if [ -e /proc/sys/net/ipv4/conf/\$x ]; then
         ifconfig \$x up >/dev/null && \\
-        iwlist \$x scan >/dev/null && \\
-        iwconfig \$x essid ${ESSID} && \\
+        iw dev \$x scan >/dev/null && \\
+        iw dev \$x connect ${ESSID} && \\
         /sbin/udhcpc -b -i \$x -x hostname:xo >/dev/null 2>/dev/null
     fi
 done
