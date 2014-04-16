@@ -15,7 +15,7 @@ get_dev() {
         mntopts="-t jffs2 mtd0"
         ;;
 
-        "XO-1.5")
+        "XO-1.5" | "XO-1.5HS")
         if [ -e /dev/mmcblk2p2 ]
         then
             # XO-1.5 B3 and newer has internal disk here
