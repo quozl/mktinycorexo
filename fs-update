@@ -1,0 +1,46 @@
+#!/bin/sh -e
+
+CARD=/dev/mmcblk0
+if [ ! -w $CARD ]; then
+    echo "no writable card present"
+    exit 1
+fi
+
+FILE=$1
+shift
+
+if [ -z $FILE ]; then
+    echo "usage: fs-update file.zd"
+    exit 1
+fi
+
+UMOUNT=no
+cleanup() {
+    if [ $UMOUNT = yes ]; then
+	umount /mnt/sda1
+	UMOUNT=no
+    fi
+}
+
+if ! grep -q /dev/sda1 /proc/mounts; then
+    mount /mnt/sda1
+    UMOUNT=yes
+fi
+
+if [ ! -r $FILE ]; then
+    FILE=/mnt/sda1/$FILE
+    if [ ! -r $FILE ]; then
+	echo "no such file"
+	cleanup
+	exit 1
+    fi
+fi
+
+echo "installing, please standby"
+if ! zdextract < $FILE > $CARD; then
+    echo "failed to install"
+    cleanup
+    exit 1
+fi
+
+echo "completed, please reboot"
