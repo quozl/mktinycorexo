@@ -107,6 +107,7 @@ umnt_sysroot() {
         umount /mnt/xo-boot
     fi
     umount /mnt/xo
+    umount /mnt/tmp
 }
 
 wait_dev() {
