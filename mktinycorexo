@@ -577,6 +577,7 @@ wget.tcz
 ncurses-common.tcz
 ncurses.tcz
 ncurses-utils.tcz
+openssh.tcz
 EOF
     if [ $GUI = yes ]; then
         cat <<EOF >> cache/TCZs_x86/tce/onboot.lst
@@ -648,6 +649,7 @@ ncurses-common.tcz
 ncurses.tcz
 ncurses-utils.tcz
 rsync.tcz
+openssh.tcz
 EOF
     if [ $GUI = yes ]; then
         cat <<EOF >> cache/TCZs_arm/tce/onboot.lst
