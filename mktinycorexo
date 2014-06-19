@@ -284,6 +284,10 @@ while [ ! -z "${1}" ]; do
             fi
             shift
             ;;
+        --no-essid)
+            shift
+            ESSID=
+            ;;
         --tczloc)
             shift
             TCZLOC=${1}
