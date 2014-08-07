@@ -2,12 +2,12 @@
 set -e
 LOGGING=/tmp/tmp.log
 
-get_xo_version() {
+get_xo_model() {
     xo_ver=`cat /proc/device-tree/mfg-data/MN`
 }
 
 get_dev() {
-    get_xo_version
+    get_xo_model
     mntopts=""
     case "$xo_ver" in
 
@@ -35,10 +35,9 @@ get_dev() {
         mntboot="-t ext2 /dev/mmcblk0p1"
         ;;
 	*)
-	echo "Unsupported XO version '$xo_ver', aborting!"
+	echo "Unsupported XO model '$xo_ver', aborting!"
 	exit 1
     esac
-    echo "Pre-mount detected $xo_ver using $mntopts"
 }
 
 find_chroot() {
