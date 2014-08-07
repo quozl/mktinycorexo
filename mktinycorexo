@@ -1027,10 +1027,10 @@ rm -rf output
 mkdir -p output
 mkdir -p output/boot
 
-if [ $C = yes ] || [ $D = yes ]; then
+if [ $C = yes -o $D = yes ]; then
     cp ${INIT_X86} output/boot/initrd.x86
 fi
-if [ $E = yes ] || [ $F = yes ]; then
+if [ $E = yes -o $F = yes ]; then
     cp ${INIT_ARM} output/boot/initrd.arm
 fi
 if [ $C = yes ]; then
