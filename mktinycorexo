@@ -899,6 +899,7 @@ fi
 for x in ${TREE_X86} ${TREE_ARM}; do
     if [ -d $x ]; then
     cat <<EOF >> ${x}/opt/bootlocal.sh
+
 # tell serial shell user we are ready
 for x in ttyS0 ttyS2; do
     grep -qw console=\$x /proc/cmdline && \\
@@ -906,7 +907,6 @@ for x in ttyS0 ttyS2; do
 done
 
 grep -qw xo-custom /proc/cmdline && /usr/local/bin/xo-custom
-
 EOF
 
     # make /dev bindable
@@ -972,6 +972,7 @@ if [ $GUI = yes ]; then
     for x in ${TREE_X86} ${TREE_ARM}; do
         if [ -d $x ]; then
             cat <<EOF >> ${x}/opt/bootlocal.sh
+
 # Increase Atrem font size
 sed -i "s/font: fixed/font: -*-fixed-medium-r-normal--*-160-90-90-c-*-*-*/" \
     /home/\$USER/.Xdefaults
