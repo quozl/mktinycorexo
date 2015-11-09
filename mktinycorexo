@@ -27,7 +27,7 @@ set -e
 #
 
 # version of this script
-VERSION=2014-08-07
+VERSION=2015-11-10
 
 # authors
 AUTHORS="quozl@laptop.org mavrothal@yahoo.com jerry@laptop.org.au"
@@ -90,10 +90,10 @@ CORE_FALLBACK_ARM_ARCH=armv7
 
 # the build from which to obtain matching kernel, modules and firmware
 # (corresponds to an rsync module name on rsync://updates.laptop.org/)
-C_BUILD=build-13.2.0_xo1-13
-D_BUILD=build-13.2.0_xo1.5-13
-E_BUILD=build-13.2.0_xo1.75-13
-F_BUILD=build-13.2.0_xo4-13
+C_BUILD=build-13.2.6_xo1-18
+D_BUILD=build-13.2.6_xo1.5-18
+E_BUILD=build-13.2.6_xo1.75-18
+F_BUILD=build-13.2.6_xo4-18
 
 # kernel bundle
 C_KERNEL=runos0.zip
@@ -108,11 +108,13 @@ E_FIRMWARE=bootfw2.zip
 F_FIRMWARE=bootfw4.zip
 
 # the kernel version string in that build
-# see uname --release, or packages.txt in build output directory
-C_MODULES=3.3.8_xo1-20130329.1530.olpc.c0f817d
-D_MODULES=3.3.8_xo1.5-20130525.1036.olpc.f12d9e6
-E_MODULES=3.0.19_xo1.75-20130520.1930.olpc.0b6118b
-F_MODULES=3.5.7_xo4-20130705.0203.olpc.e77de3d
+# see uname --release, or
+# packages.txt in build output directory, or
+# rsync rsync://updates.laptop.org/$x_BUILD/root/boot/config*
+C_MODULES=3.3.8_xo1-20150317.1153.olpc.7ceb87d
+D_MODULES=3.3.8_xo1.5-20140611.1154.olpc.355c89e
+E_MODULES=3.0.19_xo1.75-20150917.0305.olpc.95c24cb
+F_MODULES=3.5.7_xo4-20150610.0359.olpc.97336f6
 
 # additional kernel options
 # see http://wiki.tinycorelinux.com/tiki-index.php?page=Boot+Options
