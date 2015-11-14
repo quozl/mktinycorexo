@@ -126,7 +126,7 @@ F_MODULES=3.5.7_xo4-20150610.0359.olpc.97336f6
 # nozswap, do not use zram swap (because OLPC kernels do not have it)
 # cde, use extensions from cde directory
 # lst=, name of file with extensions (tcz) to be loaded at boot time
-CMDLINE="fbcon=font:SUN12x22 superuser quiet showapps multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0"
+CMDLINE="fbcon=font:SUN12x22 superuser quiet showapps multivt waitusb=5 nozswap console=\${SERIALTERM},115200 console=tty0 loglevel=3"
 
 
 # directories
