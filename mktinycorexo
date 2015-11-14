@@ -561,7 +561,6 @@ tar.tcz
 parted.tcz
 rsync.tcz
 popt.tcz
-lynx.tcz
 gzip.tcz
 coreutils.tcz
 acl.tcz
@@ -578,12 +577,11 @@ libusb.tcz
 pci-utils.tcz
 libpci.tcz
 util-linux.tcz
-nano.tcz
 wget.tcz
 ncurses-common.tcz
 ncurses.tcz
-ncurses-utils.tcz
 openssh.tcz
+gcc_libs.tcz
 EOF
     if [ $GUI = yes ]; then
         cat <<EOF >> cache/TCZs_x86/tce/onboot.lst
@@ -638,9 +636,8 @@ openssl-1.0.0.tcz
 libnl.tcz
 libiw.tcz
 tar.tcz
+rsync.tcz
 popt.tcz
-nano.tcz
-lynx.tcz
 coreutils.tcz
 libiconv.tcz
 gmp.tcz
@@ -651,11 +648,15 @@ usbutils.tcz
 libusb.tcz
 pciutils.tcz
 wget.tcz
-ncurses-common.tcz
-ncurses.tcz
-ncurses-utils.tcz
-rsync.tcz
 openssh.tcz
+pcre.tcz
+bzip2-lib.tcz
+gnutls.tcz
+libtasn1.tcz
+p11-kit.tcz
+nettle.tcz
+libgcrypt.tcz
+libgpg-error.tcz
 EOF
     if [ $GUI = yes ]; then
         cat <<EOF >> cache/TCZs_arm/tce/onboot.lst
@@ -668,7 +669,6 @@ alsa-utils.tcz
 alsa-plugins.tcz
 libasound.tcz
 libasound-bin.tcz
-bzip2-lib.tcz
 bzip2.tcz
 mirrors.tcz
 fontconfig.tcz
@@ -680,14 +680,8 @@ freetype.tcz
 imlib2.tcz
 libjpeg.tcz
 libpng.tcz
-gnutls.tcz
-pcre.tcz
 imlib2-tools.tcz
 squashfs-tools-4.x.tcz
-libgcrypt.tcz
-nettle.tcz
-p11-kit.tcz
-libtasn1.tcz
 libgpg-error.tcz
 wbar.tcz
 flwm_topside_xoa.tcz
