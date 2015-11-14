@@ -851,7 +851,7 @@ p_end "ok"
 p_begin "Modifying initrd - add OLPC XO specific scripts ... "
 for x in ${TREE_X86} ${TREE_ARM}; do
     if [ -d $x ]; then
-        cp xo-{backup,restore,server,revert,custom} ${x}/usr/local/bin/
+        cp xo-{backup,restore,server,revert,custom,remote} ${x}/usr/local/bin/
     fi
 done
 if [ $C = yes ]; then

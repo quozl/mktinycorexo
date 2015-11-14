@@ -1,0 +1,12 @@
+#!/bin/sh
+echo "enabling remote diagnosis"
+passwd tc
+cd /usr/local/etc/ssh && cp sshd_config.example sshd_config
+/usr/local/etc/init.d/openssh start
+
+for x in eth0 mlan0 wlan0; do
+   if [ -e /proc/sys/net/ipv4/conf/$x ]; then
+       IP=$(ifconfig $x|grep 'inet addr'|cut -f2 -d:|cut -f1 -d' ')
+   fi
+done
+echo "ok, IP address is ${IP}"
