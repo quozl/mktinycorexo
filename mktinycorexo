@@ -2,7 +2,7 @@
 set -e
 #
 # Tiny Core Linux target system builder for OLPC XO laptops
-# Copyright (C) 2011  James Cameron (quozl@laptop.org)
+# Copyright (C) 2011-2015  James Cameron (quozl@laptop.org)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,14 +27,14 @@ set -e
 #
 
 # version of this script
-VERSION=2015-11-10
+VERSION=2015-11-14
 
 # authors
 AUTHORS="quozl@laptop.org mavrothal@yahoo.com jerry@laptop.org.au"
 
 
 # your local defaults
-# may be overidden with ~/.mktinycorexo
+# may be overidden with mktinycorexo.conf
 
 # the block device to create the partition on
 # (ignored if it does not exist)
@@ -791,12 +791,16 @@ p_begin "Modifying initrd - version ... "
 if [ -d ${TREE_X86} ]; then
     cat <<EOF >> ${TREE_X86}/etc/motd
 ${VERSION} ${AUTHORS}
+           http://wiki.laptop.org/go/Tiny_Core_Linux
+           http://dev.laptop.org/git/users/quozl/mktinycorexo/
 
 EOF
 fi
 if [ -d ${TREE_ARM} ]; then
     cat <<EOF >> ${TREE_ARM}/etc/motd
 ${VERSION} ${AUTHORS}
+           http://wiki.laptop.org/go/Tiny_Core_Linux
+           http://dev.laptop.org/git/users/quozl/mktinycorexo/
 
 EOF
 fi
@@ -1132,8 +1136,8 @@ p_begin "Adding Open Firmware boot script ... "
 cat << EOF > output/boot/olpc.fth
 \ olpc.fth
 visible
-.( -- Tiny Core Linux boot script for Open Firmware    ) cr
-.(    by quozl@laptop.org, ${VERSION}               -- ) cr cr
+cr .(    Tiny Core Linux for the OLPC XO laptop, )
+cr .(    by quozl@laptop.org, ${VERSION}) cr cr
 
 \ translate a bundle suffix string to an architecture tag string
 : b>a  ( bundle$ -- architecture$ )
