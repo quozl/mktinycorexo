@@ -882,6 +882,12 @@ EOF
     p_end "ok"
 fi
 
+# suppress irritating message on XO-1.5
+if [ -d ${TREE_X86} ]; then
+    sed -i 's/settle --timeout=5/settle --timeout=5 --quiet/g' \
+	${TREE_X86}/etc/init.d/dhcp.sh
+fi
+
 # enable serial shell
 if [ -d ${TREE_X86} ]; then
     echo "ttyS0::respawn:/sbin/getty -L -n -w -l /bin/sh 115200 ttyS0 vt100" \
