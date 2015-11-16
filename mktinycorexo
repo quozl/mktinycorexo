@@ -22,15 +22,15 @@ set -e
 # Modified by mavrothal@yahoo.com for TC 4.x, OLPC 13.2.0 kernels
 # and all 4 XO models.  May 2013
 #
-# Modified by jerry@laptop.org.au to add customisation stick mode.
-# June 2013.
+# Modified by Jerry Vonau <me@jvonau.ca> to add customisation stick
+# mode.  June 2013.
 #
 
 # version of this script
 VERSION=2015-11-14
 
 # authors
-AUTHORS="quozl@laptop.org mavrothal@yahoo.com jerry@laptop.org.au"
+AUTHORS="quozl@laptop.org mavrothal@yahoo.com me@jvonau.ca"
 
 
 # your local defaults
