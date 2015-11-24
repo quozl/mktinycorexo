@@ -1,0 +1,18 @@
+#!/bin/sh
+# XO-1 provide a reversion server to local network
+# http://wiki.laptop.org/go/Tiny_Core_Linux/Reversion
+mkdir /mnt/root
+mount -t jffs2 mtd0 /mnt/root
+cat << EOF > /etc/rsyncd.conf
+[p0]
+        path = /mnt/root
+        uid = root
+        gid = root
+EOF
+rsync --daemon
+for x in eth0 mlan0 wlan0; do
+   if [ -e /proc/sys/net/ipv4/conf/$x ]; then
+       IP=$(ifconfig $x|grep 'inet addr'|cut -f2 -d:|cut -f1 -d' ')
+   fi
+done
+echo "ok, IP address is ${IP}"

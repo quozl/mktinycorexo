@@ -1,0 +1,14 @@
+#!/bin/sh
+# XO-1 revert filesystem to pristine state using a nearby server
+# http://wiki.laptop.org/go/Tiny_Core_Linux/Reversion
+# usage: xo-1-revert IP [ options for rsync ...]
+set -e
+IP=${1}
+shift
+umount /mnt/root 2>/dev/null || true
+mkdir -p /mnt/root
+mount -t jffs2 mtd0 /mnt/root
+echo "reverting filesystem"
+rsync --archive --compress --delete $* rsync://${IP}/p0 /mnt/root
+umount /mnt/root
+echo ok
